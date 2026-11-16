@@ -232,6 +232,37 @@
     border-top: 1px solid rgba(212, 222, 233, 0.7);
     box-shadow: 0 -10px 30px rgba(20, 49, 77, 0.08);
   }
+  .chat-pane {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  }
+  .chat-thread-bar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 8px 0;
+    flex-shrink: 0;
+  }
+  .chat-composer {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-shrink: 0;
+    padding-top: 10px;
+    padding-bottom: 8px;
+    background: linear-gradient(180deg, rgba(238, 243, 248, 0), #eef3f8 32%);
+  }
+  .chat-composer input {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+    font-size: 16px;
+  }
   .nav-item { transition: color 0.15s ease; }
   .empty-well {
     width: 64px; height: 64px; border-radius: 18px;
@@ -1570,10 +1601,9 @@ function ChatTab({ messages, session, myGroup, matchThreads, chatFocus, presence
   }, label);
 
   return h("div", {
-    className: "flex flex-col w-full",
-    style: { height: "100%", minHeight: 0 },
+    className: "flex flex-col w-full flex-1 min-h-0",
   },
-    h("div", { className: "pt-2 pb-2 flex flex-wrap gap-2 shrink-0" },
+    h("div", { className: "chat-thread-bar" },
       (matchThreads || []).map(t => scopeBtn(t.id, plainLabel(t.peerName))),
       scopeBtn("mine", "Group chat", !myGroup),
       !matchThreads.length && !myGroup && h("span", { className: "text-[11px] self-center", style: { color: "var(--muted)" } }, "Personal and group chats appear here"),
@@ -1668,13 +1698,7 @@ function ChatTab({ messages, session, myGroup, matchThreads, chatFocus, presence
 
     h("form", {
       onSubmit: submit,
-      className: "pt-3 flex gap-2.5 items-center shrink-0",
-      style: {
-        position: "sticky",
-        bottom: 0,
-        background: "linear-gradient(180deg, transparent, rgba(228,233,227,0.95) 28%)",
-        paddingBottom: 4,
-      },
+      className: "chat-composer",
     },
       h("div", { className: "flex gap-2.5 items-center w-full mx-auto", style: { maxWidth: 720 } },
         h("input", {
@@ -2282,8 +2306,7 @@ function App() {
     dbReady && !db && h("div", { className: "app-shell pt-3 text-xs text-center shrink-0", style: { color: "var(--danger)" } }, "Cannot reach the backend — start the server (start.bat) and open http://127.0.0.1:5000"),
     !isChat && h(CheckInBanner, { myPresence, geoStatus, placeLabel, myCoords, busy: checkInBusy, onCheckIn: handleCheckIn, onCheckOut: handleCheckOut, onRefreshLocation: handleRefreshLocation }),
     h("div", {
-      className: isChat ? "app-shell flex-1 min-h-0" : "pb-28",
-      style: isChat ? { paddingBottom: 78, display: "flex", flexDirection: "column", minHeight: 0 } : undefined,
+      className: isChat ? "app-shell chat-pane" : "pb-28",
     },
       tab === "home" && h(HomeTab, {
         session, presenceList, myCoords, placeLabel, geoStatus, profiles, rideRequests,
