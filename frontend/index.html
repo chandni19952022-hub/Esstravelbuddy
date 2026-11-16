@@ -1,0 +1,2311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="theme-color" content="#1B3A5F" />
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
+<title>ESS Travel Buddy</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --bg: #EAF0F6;
+    --surface: #F5F8FC;
+    --border: #D4DEE9;
+    --ink: #14314D;
+    --muted: #6B7C90;
+    --teal: #1B3A5F;
+    --tealMid: #2A4F7A;
+    --reed: #2F8F5B;
+    --reedSoft: #E3F5EA;
+    --gold: #1B3A5F;
+    --goldSoft: #E8EEF6;
+    --accent: #F07A1A;
+    --accentSoft: #FFE8D4;
+    --danger: #C0453A;
+    --dangerSoft: #F8E0DD;
+    --card: #FFFFFF;
+    --shadow: 0 10px 28px rgba(20, 49, 77, 0.08);
+    --shadowSoft: 0 4px 16px rgba(20, 49, 77, 0.05);
+  }
+  * { box-sizing: border-box; }
+  html, body, #root {
+    height: 100%;
+    height: 100dvh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+  html, body { color: var(--ink); }
+  * { scrollbar-width: none; }
+  *::-webkit-scrollbar { width: 0; height: 0; display: none; }
+  body {
+    font-family: Manrope, "Segoe UI", sans-serif;
+    background:
+      radial-gradient(720px 320px at 0% -4%, rgba(240, 122, 26, 0.16), transparent 58%),
+      radial-gradient(560px 280px at 100% 0%, rgba(47, 143, 91, 0.12), transparent 55%),
+      linear-gradient(180deg, #F8F4EF 0%, #EEF3F8 42%, #E6EEF6 100%);
+  }
+  input, select, textarea, button { font-family: inherit; }
+  ::placeholder { color: var(--muted); opacity: 0.75; }
+  button { cursor: pointer; }
+  a[href^="tel:"] { color: inherit !important; text-decoration: none !important; pointer-events: none !important; }
+  a.call-link[href^="tel:"] { pointer-events: auto !important; color: #fff !important; cursor: pointer; }
+  .app-shell {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+  @media (min-width: 900px) {
+    .app-shell { padding-left: 28px; padding-right: 28px; }
+  }
+  @media (min-width: 1100px) {
+    .home-match-grid { grid-template-columns: 1fr 1fr !important; }
+    .home-prefs-row {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+      align-items: start;
+    }
+  }
+  @media (min-width: 1200px) {
+    .app-shell { padding-left: 40px; padding-right: 40px; }
+  }
+  .panel {
+    background: var(--card);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 22px;
+    box-shadow: 0 16px 40px rgba(20, 49, 77, 0.08);
+  }
+  .chip {
+    background: #F7F9FC;
+    color: var(--tealMid);
+    border: 1.5px solid #E3EAF2;
+    transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .chip:hover { transform: translateY(-1px); border-color: #F0C9A4; }
+  .chip:active { transform: scale(0.98); }
+  .chip.is-active {
+    background: linear-gradient(180deg, #2A4F7A 0%, #173454 100%);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 8px 16px rgba(27, 58, 95, 0.22);
+  }
+  .home-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 20px 22px;
+    background:
+      radial-gradient(220px 90px at 96% 0%, rgba(240, 122, 26, 0.55), transparent 70%),
+      linear-gradient(120deg, #122C4A 0%, #1B3A5F 58%, #24507C 100%);
+  }
+  .home-prefs { padding: 18px 22px 20px; }
+  .route-ends {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .route-end {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  .route-end span {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tealMid);
+  }
+  .route-end input {
+    width: 100%;
+    border-radius: 14px;
+    padding: 11px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    outline: none;
+    border: 1.5px solid #E3EAF2;
+    background: #F7F9FC;
+    color: var(--ink);
+  }
+  .route-end input[readonly] {
+    cursor: default;
+  }
+  .route-end input:focus {
+    border-color: #F07A1A;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(240, 122, 26, 0.15);
+  }
+  .route-suggest-list {
+    display: flex;
+    flex-direction: column;
+    max-height: 280px;
+    overflow: auto;
+    margin-top: 6px;
+    background: #fff;
+    border: 1.5px solid #E3EAF2;
+    border-radius: 14px;
+    box-shadow: 0 12px 28px rgba(20, 49, 77, 0.12);
+  }
+  .route-suggest-list button {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    background: #fff;
+    border: none;
+    border-bottom: 1px solid #EEF2F6;
+  }
+  .route-suggest-list button:last-child { border-bottom: none; }
+  .route-suggest-list button:hover { background: #F7F9FC; }
+  @media (max-width: 520px) {
+    .route-ends { grid-template-columns: 1fr; }
+  }
+  .home-save {
+    border: none;
+    border-radius: 14px;
+    color: #fff;
+    background: linear-gradient(180deg, #F59A45 0%, #E06A12 100%);
+    box-shadow: 0 10px 20px rgba(224, 106, 18, 0.32);
+  }
+  .home-save:hover { filter: brightness(1.05); }
+  .home-save:disabled { opacity: 0.65; cursor: default; filter: none; }
+  .checkin-banner {
+    background: linear-gradient(180deg, #F4FBF7 0%, #E5F6ED 100%);
+    border: 1px solid #C5E6D4;
+    border-radius: 18px;
+    box-shadow: 0 10px 24px rgba(47, 143, 91, 0.1);
+  }
+  .section-head {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    column-gap: 10px;
+    row-gap: 2px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .section-head .section-sub { grid-column: 2 / -1; }
+  .icon-bubble {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #FFF6EE 0%, #FFE4CC 100%);
+    flex-shrink: 0;
+  }
+  .count-pill {
+    background: #FFF1E4;
+    color: #C45E0A;
+    font-weight: 800;
+  }
+  .partner-row {
+    background: #F8FAFC;
+    border: 1px solid #E6EDF5;
+    border-radius: 16px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .partner-row:hover {
+    border-color: #F0C9A4;
+    box-shadow: 0 10px 22px rgba(20, 49, 77, 0.07);
+    transform: translateY(-1px);
+  }
+  .bottom-nav {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(14px);
+    border-top: 1px solid rgba(212, 222, 233, 0.7);
+    box-shadow: 0 -10px 30px rgba(20, 49, 77, 0.08);
+  }
+  .nav-item { transition: color 0.15s ease; }
+  .empty-well {
+    width: 64px; height: 64px; border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(160deg, #E8EEF6, #F5F8FC);
+    border: 1px solid var(--border);
+  }
+  @keyframes slideIn { from { transform: translateY(-12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes slideInRight { from { transform: translateX(28px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes alertGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(240, 122, 26, 0.55), 0 16px 36px rgba(20, 49, 77, 0.2); }
+    55% { box-shadow: 0 0 0 10px rgba(240, 122, 26, 0), 0 16px 36px rgba(20, 49, 77, 0.2); }
+  }
+  .notify-alert {
+    background: #fff;
+    color: var(--ink);
+    border: 2px solid var(--accent);
+    border-radius: 16px;
+    animation: slideInRight 0.28s ease-out, alertGlow 1.35s ease-out 3;
+  }
+  @keyframes notifyPulse {
+    0% { box-shadow: 0 0 0 0 rgba(240, 122, 26, 0.75); }
+    70% { box-shadow: 0 0 0 8px rgba(240, 122, 26, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(240, 122, 26, 0); }
+  }
+  .notify-dot {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 99px;
+    background: var(--accent);
+    border: 2px solid #fff;
+    animation: notifyPulse 1.35s ease-out infinite;
+  }
+  @keyframes pulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.55; transform: scale(0.85); } }
+  .live-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    display: inline-block;
+    flex-shrink: 0;
+    background: #3DDC84;
+    box-shadow: 0 0 0 0 rgba(61, 220, 132, 0.8);
+    animation: liveBlink 1.15s ease-in-out infinite;
+  }
+  @keyframes liveBlink {
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(61, 220, 132, 0.85); }
+    50% { opacity: 0.25; transform: scale(0.72); box-shadow: 0 0 0 10px rgba(61, 220, 132, 0); }
+  }
+  .login-screen {
+    height: 100dvh;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    padding: 36px 18px;
+    background:
+      radial-gradient(520px 280px at 12% 0%, rgba(240, 122, 26, 0.38), transparent 60%),
+      radial-gradient(480px 320px at 100% 18%, rgba(61, 220, 132, 0.18), transparent 55%),
+      linear-gradient(165deg, #0E2340 0%, #1B3A5F 52%, #163454 100%);
+  }
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+    background: #fff;
+    border-radius: 28px;
+    padding: 28px 26px 22px;
+    box-shadow: 0 28px 70px rgba(6, 16, 32, 0.38);
+  }
+  .login-field input {
+    width: 100%;
+    border-radius: 14px;
+    padding: 13px 14px;
+    font-size: 15px;
+    font-weight: 600;
+    outline: none;
+    border: 1.5px solid #E2E8F0;
+    background: #F7F9FC;
+    color: var(--ink);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+  .login-field input:focus {
+    border-color: #F07A1A;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(240, 122, 26, 0.15);
+  }
+  .login-submit {
+    margin-top: 6px;
+    width: 100%;
+    border: none;
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+    background: linear-gradient(180deg, #F59A45 0%, #E06A12 100%);
+    box-shadow: 0 12px 24px rgba(224, 106, 18, 0.35);
+  }
+  .login-submit:hover { filter: brightness(1.05); }
+  .login-submit:disabled { opacity: 0.7; cursor: default; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="/api.js"></script>
+<script>
+window.addEventListener("error", function (e) {
+  var root = document.getElementById("root");
+  if (root && !root.dataset.mounted) {
+    root.innerHTML = '<div style="padding:24px;font-family:sans-serif;color:#A6432A">The app hit a loading error: ' +
+      (e && e.message ? e.message : "unknown") + '. Please refresh.</div>';
+  }
+});
+</script>
+<script>
+const h = React.createElement;
+const { useState, useEffect, useCallback, useRef } = React;
+const SERIF = "Manrope, 'Segoe UI', sans-serif";
+const AUTO_SHARE_THRESHOLD = 3;
+const PRESENCE_EXPIRY_MS = 3 * 60 * 60 * 1000;
+const PICKUP_POINTS = ["OBS Main Gate", "OBS South Entrance"];
+const S_KEY = "obs_session_v3";
+const EMERGENCY_NUMBER = "9810490218";
+const EMERGENCY_TEL = "tel:+91" + EMERGENCY_NUMBER;
+const ROUTES = [
+  { id: "obs_to_lotus", label: "OBS → Lotus Business Park" },
+  { id: "lotus_to_obs", label: "Lotus Business Park → OBS" },
+  { id: "other", label: "Other location" },
+];
+const VEHICLES = ["Car", "Cab", "Auto", "Metro"];
+const TIMINGS = [
+  "9:30 AM – 5:30 PM",
+  "10:00 AM – 7:00 PM",
+  "11:00 AM – 8:00 PM",
+  "12:00 PM – 9:00 PM",
+  "10:30 AM – 7:30 PM",
+  "Other timing",
+];
+const DEFAULT_PROFILE = { route: "obs_to_lotus", vehicle: "Car", timing: TIMINGS[0] };
+
+// ---------- helpers ----------
+function initials(name) {
+  if (!name) return "?";
+  return name.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join("").toUpperCase();
+}
+function plainLabel(text) {
+  return String(text || "").replace(/\d{5,}/g, (n) => n.split("").join("\u2060"));
+}
+function compressImageFile(file, maxSize = 256, quality = 0.72) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("Could not read image"));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("Invalid image"));
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+        canvas.width = Math.max(1, Math.round(img.width * scale));
+        canvas.height = Math.max(1, Math.round(img.height * scale));
+        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const toRad = d => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+function formatDistance(m) {
+  if (m === null || m === undefined || isNaN(m)) return null;
+  if (m < 1000) return Math.round(m) + " m away";
+  return (m / 1000).toFixed(1) + " km away";
+}
+function mapsPinUrl(lat, lon) {
+  return "https://www.google.com/maps?q=" + encodeURIComponent(lat + "," + lon);
+}
+function mapsDirectionsUrl(fromLat, fromLon, toLat, toLon) {
+  return "https://www.google.com/maps/dir/?api=1&origin=" +
+    encodeURIComponent(fromLat + "," + fromLon) +
+    "&destination=" + encodeURIComponent(toLat + "," + toLon);
+}
+let _notifyAudioCtx = null;
+function playNotifyDing(kind) {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    _notifyAudioCtx = _notifyAudioCtx || new AC();
+    const ctx = _notifyAudioCtx;
+    if (ctx.state === "suspended") ctx.resume();
+    const now = ctx.currentTime;
+    const freqs = kind === "request" ? [740, 988] : [880, 1175];
+    freqs.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.14, now + 0.02 + i * 0.07);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22 + i * 0.09);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + i * 0.07);
+      osc.stop(now + 0.32 + i * 0.09);
+    });
+  } catch (e) { /* ignore autoplay restrictions */ }
+}
+function tryBrowserPush(title, body) {
+  if (!("Notification" in window)) return;
+  if (Notification.permission === "granted") {
+    try {
+      const n = new Notification(title || "ESS Travel Buddy", { body: body || "", silent: true, icon: "/logo.png" });
+      setTimeout(() => n.close(), 5000);
+    } catch (e) {}
+  }
+}
+function ensureNotifyPermission() {
+  if (!("Notification" in window)) return;
+  if (Notification.permission === "default") {
+    try { Notification.requestPermission(); } catch (e) {}
+  }
+}
+function timeAgo(ts) {
+  const diff = Date.now() - ts;
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return "just now";
+  if (min < 60) return min + "m ago";
+  const hr = Math.floor(min / 60);
+  return hr + "h " + (min % 60) + "m ago";
+}
+function clockTime(ts) { return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); }
+function isToday(ts) { const d = new Date(ts), n = new Date(); return d.toDateString() === n.toDateString(); }
+function readSession() { try { const raw = localStorage.getItem(S_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } }
+function writeSession(s) { try { localStorage.setItem(S_KEY, JSON.stringify(s)); } catch (e) {} }
+function clearSession() { try { localStorage.removeItem(S_KEY); } catch (e) {} }
+
+// ---------- icons ----------
+function Icon(props) {
+  const { name, size = 18, color = "currentColor", fill = "none" } = props;
+  const common = { width: size, height: size, viewBox: "0 0 24 24", fill: fill, stroke: color, strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" };
+  switch (name) {
+    case "mapPin": return h("svg", common, h("path", { d: "M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0z" }), h("circle", { cx: 12, cy: 10, r: 3 }));
+    case "users": return h("svg", common, h("path", { d: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" }), h("circle", { cx: 9, cy: 7, r: 4 }), h("path", { d: "M23 21v-2a4 4 0 0 0-3-3.87" }), h("path", { d: "M16 3.13a4 4 0 0 1 0 7.75" }));
+    case "chat": return h("svg", common, h("path", { d: "M21 11.5a8.38 8.38 0 0 1-4.9 7.65 8.5 8.5 0 0 1-8.34-.19L3 21l1.9-5.4A8.38 8.38 0 0 1 3.5 11.5 8.5 8.5 0 0 1 12 3a8.5 8.5 0 0 1 9 8.5z" }));
+    case "car": return h("svg", common, h("path", { d: "M3 13l2-6a2 2 0 0 1 2-1.4h10A2 2 0 0 1 19 7l2 6" }), h("path", { d: "M2 13h20v4a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H5v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z" }), h("circle", { cx: 7, cy: 17.5, r: 1.4, fill: color }), h("circle", { cx: 17, cy: 17.5, r: 1.4, fill: color }));
+    case "logout": return h("svg", common, h("path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" }), h("polyline", { points: "16 17 21 12 16 7" }), h("line", { x1: 21, y1: 12, x2: 9, y2: 12 }));
+    case "star": return h("svg", { ...common, fill: fill }, h("polygon", { points: "12 2 15 9 22 9.5 17 14.5 18.5 22 12 18 5.5 22 7 14.5 2 9.5 9 9" }));
+    case "send": return h("svg", common, h("line", { x1: 22, y1: 2, x2: 11, y2: 13 }), h("polygon", { points: "22 2 15 22 11 13 2 9" }));
+    case "plus": return h("svg", common, h("line", { x1: 12, y1: 5, x2: 12, y2: 19 }), h("line", { x1: 5, y1: 12, x2: 19, y2: 12 }));
+    case "check": return h("svg", common, h("polyline", { points: "20 6 9 17 4 12" }));
+    case "x": return h("svg", common, h("line", { x1: 18, y1: 6, x2: 6, y2: 18 }), h("line", { x1: 6, y1: 6, x2: 18, y2: 18 }));
+    case "nav": return h("svg", { ...common, fill: fill }, h("polygon", { points: "12 2 19 21 12 17 5 21 12 2" }));
+    case "chevronDown": return h("svg", common, h("polyline", { points: "6 9 12 15 18 9" }));
+    case "refresh": return h("svg", common, h("polyline", { points: "23 4 23 10 17 10" }), h("polyline", { points: "1 20 1 14 7 14" }), h("path", { d: "M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" }));
+    case "shield": return h("svg", { ...common, fill: fill }, h("path", { d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" }));
+    case "phone": return h("svg", { ...common, fill: fill }, h("path", { d: "M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" }));
+    case "bell": return h("svg", common, h("path", { d: "M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" }), h("path", { d: "M13.73 21a2 2 0 0 1-3.46 0" }));
+    case "clock": return h("svg", common, h("circle", { cx: 12, cy: 12, r: 9 }), h("polyline", { points: "12 7 12 12 15 14" }));
+    case "save": return h("svg", common, h("path", { d: "M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" }), h("polyline", { points: "17 21 17 13 7 13 7 21" }), h("polyline", { points: "7 3 7 8 15 8" }));
+    case "handshake": return h("svg", common, h("path", { d: "M17 11l2.5-2.5a2.1 2.1 0 0 0-3-3L14 8" }), h("path", { d: "M7 11L4.5 8.5a2.1 2.1 0 0 1 3-3L10 8" }), h("path", { d: "M12 12l-2 2a2 2 0 0 0 0 3l1 1a2 2 0 0 0 3 0l3-3" }), h("path", { d: "M9 15l-1.5 1.5a2 2 0 0 1-3 0l-1-1a2 2 0 0 1 0-3L6 10" }));
+    case "home": return h("svg", common, h("path", { d: "M3 11l9-8 9 8" }), h("path", { d: "M5 10v9a1 1 0 0 0 1 1h4v-5h4v5h4a1 1 0 0 0 1-1v-9" }));
+    default: return null;
+  }
+}
+
+function Chip({ label, active, onClick, icon }) {
+  return h("button", {
+    type: "button",
+    onClick,
+    className: "chip inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold whitespace-nowrap" + (active ? " is-active" : ""),
+  }, icon || null, label);
+}
+function SectionLabel({ children }) {
+  return h("div", {
+    className: "text-[11px] font-extrabold uppercase mb-2.5",
+    style: { color: "var(--tealMid)", letterSpacing: "0.08em" },
+  }, children);
+}
+function EmptyState({ icon, title, text }) {
+  return h("div", { className: "flex flex-col items-center justify-center py-8 px-4 gap-2.5" },
+    h("div", { className: "empty-well" }, h(Icon, { name: icon, size: 26, color: "var(--tealMid)" })),
+    title && h("div", { className: "text-sm font-bold text-center", style: { color: "var(--ink)" } }, title),
+    h("p", { className: "text-xs text-center leading-relaxed", style: { color: "var(--muted)", maxWidth: 260 } }, text)
+  );
+}
+
+function routeLabel(idOrProfile) {
+  const profile = idOrProfile && typeof idOrProfile === "object" ? idOrProfile : null;
+  const id = profile ? profile.route : idOrProfile;
+  if (id === "other") {
+    const from = profile ? String(profile.routeFrom || "").trim() : "";
+    const to = profile ? String(profile.routeTo || "").trim() : "";
+    if (from && to) return from + " → " + to;
+    return "Other location";
+  }
+  const found = ROUTES.find(r => r.id === id);
+  return found ? found.label : (id || "");
+}
+
+// ---------- atoms ----------
+function Avatar({ name, size = 36, verified, photo }) {
+  return h("div", { className: "relative shrink-0", style: { width: size, height: size } },
+    photo
+      ? h("img", { src: photo, alt: name || "Profile", className: "rounded-full w-full h-full", style: { objectFit: "cover", display: "block", background: "var(--teal)" } })
+      : h("div", { className: "flex items-center justify-center rounded-full w-full h-full", style: { background: "var(--teal)", color: "#fff", fontWeight: 600, fontSize: size * 0.38 } }, initials(name)),
+    verified && h("div", { className: "absolute flex items-center justify-center rounded-full", style: { width: size * 0.42, height: size * 0.42, right: -2, bottom: -2, background: "var(--reed)", border: "2px solid var(--card)" } },
+      h(Icon, { name: "check", size: size * 0.24, color: "#fff" })
+    )
+  );
+}
+function Badge({ children, tone = "muted" }) {
+  const tones = {
+    muted: { bg: "#E8EEF6", fg: "var(--tealMid)" },
+    reed: { bg: "var(--reedSoft)", fg: "var(--reed)" },
+    gold: { bg: "var(--goldSoft)", fg: "var(--teal)" },
+    danger: { bg: "var(--dangerSoft)", fg: "var(--danger)" },
+  };
+  const t = tones[tone] || tones.muted;
+  return h("span", { className: "inline-flex items-center rounded-full px-2 py-0.5 text-xs", style: { background: t.bg, color: t.fg, fontWeight: 600 } }, children);
+}
+function Card({ children, style, className }) {
+  return h("div", {
+    className: "panel p-4 " + (className || ""),
+    style: { background: "var(--card)", ...style },
+  }, children);
+}
+
+// ---------- Notification toasts (right side) ----------
+function NotificationStack({ notifications, onOpen }) {
+  if (!notifications.length) return null;
+  return h("div", { className: "fixed z-50 flex flex-col gap-2", style: { top: 72, right: 12, width: "min(320px, calc(100vw - 24px))" } },
+    notifications.map(n => h("button", {
+      key: n.id,
+      type: "button",
+      onClick: () => onOpen && onOpen(n),
+      className: "notify-alert px-3.5 py-3 text-left",
+      style: { cursor: onOpen ? "pointer" : "default" },
+    },
+      h("div", { className: "flex items-start gap-2.5" },
+        h("div", { className: "mt-0.5 flex items-center justify-center rounded-full shrink-0", style: { width: 32, height: 32, background: "var(--accent)", boxShadow: "0 6px 14px rgba(240,122,26,0.35)" } },
+          h(Icon, { name: n.icon || "bell", size: 15, color: "#fff" })
+        ),
+        h("div", { className: "min-w-0 flex-1" },
+          n.title && h("div", { className: "text-xs font-extrabold mb-0.5 uppercase", style: { color: "var(--accent)", letterSpacing: "0.06em" } }, n.title),
+          h("div", { className: "text-sm font-bold leading-snug", style: { color: "var(--ink)", wordBreak: "break-word" } }, n.text)
+        )
+      )
+    ))
+  );
+}
+
+// ---------- Login ----------
+function LoginScreen({ onLogin }) {
+  const [mode, setMode] = useState("login");
+  const [empId, setEmpId] = useState("");
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const goLogin = () => {
+    setMode("login");
+    setError("");
+    setPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  };
+
+  const goReset = () => {
+    setMode("reset");
+    setError("");
+    setNotice("");
+    setPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  };
+
+  const submitLogin = async (e) => {
+    e.preventDefault();
+    if (!empId.trim() || !name.trim() || !password) {
+      setError("Employee ID, display name, and password are required.");
+      return;
+    }
+    if (password.length < 4) {
+      setError("Password must be at least 4 characters.");
+      return;
+    }
+    setError("");
+    setNotice("");
+    setBusy(true);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ empId: empId.trim(), name: name.trim(), password }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error || "Login failed. Check Employee ID and password.");
+        setBusy(false);
+        return;
+      }
+      onLogin({ empId: data.empId, name: data.name, verified: true });
+    } catch (err) {
+      setError("Cannot reach server. Is the backend running?");
+      setBusy(false);
+    }
+  };
+
+  const submitReset = async (e) => {
+    e.preventDefault();
+    if (!empId.trim() || !newPassword || !confirmPassword) {
+      setError("Employee ID, new password, and confirmation are required.");
+      return;
+    }
+    if (newPassword.length < 4) {
+      setError("Password must be at least 4 characters.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError("New password and confirmation do not match.");
+      return;
+    }
+    setError("");
+    setNotice("");
+    setBusy(true);
+    try {
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          empId: empId.trim(),
+          newPassword,
+          confirmPassword,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error || "Could not reset password.");
+        setBusy(false);
+        return;
+      }
+      setNewPassword("");
+      setConfirmPassword("");
+      setPassword("");
+      setMode("login");
+      setNotice("Password updated. Log in with your new password.");
+      setBusy(false);
+    } catch (err) {
+      setError("Cannot reach server. Is the backend running?");
+      setBusy(false);
+    }
+  };
+
+  const brand = h("div", { className: "flex flex-col items-center mb-6" },
+    h("img", {
+      src: "/logo.png",
+      alt: "ESS Travel Buddy",
+      style: { height: 52, width: "auto", maxWidth: "80%", objectFit: "contain", display: "block" },
+    }),
+    h("h1", { className: "text-[28px] text-center font-extrabold mt-4", style: { fontFamily: SERIF, color: "var(--ink)", letterSpacing: "-0.03em" } }, "ESS Travel Buddy"),
+    h("p", { className: "mt-1 text-sm text-center", style: { color: "var(--muted)" } }, "Sharing Journeys, Building Connections")
+  );
+
+  return h("div", { className: "login-screen" },
+    h("div", { className: "login-card" },
+      brand,
+      mode === "reset"
+        ? h("form", { onSubmit: submitReset, className: "flex flex-col gap-3" },
+            h("div", null,
+              h("div", { className: "text-lg font-extrabold", style: { color: "var(--ink)" } }, "Reset password"),
+              h("p", { className: "text-xs mt-1 leading-relaxed", style: { color: "var(--muted)" } }, "Enter your Employee ID and choose a new password. You will log in again with it.")
+            ),
+            h(Field, { label: "Employee ID", value: empId, onChange: setEmpId, placeholder: "Enter employee ID" }),
+            h(Field, { label: "New password", value: newPassword, onChange: setNewPassword, placeholder: "Enter new password", type: "password" }),
+            h(Field, { label: "Confirm new password", value: confirmPassword, onChange: setConfirmPassword, placeholder: "Re-enter new password", type: "password" }),
+            error && h("p", { className: "text-sm", style: { color: "var(--danger)" } }, error),
+            h("button", { type: "submit", disabled: busy, className: "login-submit" }, busy ? "Updating…" : "Reset password"),
+            h("button", {
+              type: "button", onClick: goLogin,
+              className: "w-full text-sm font-bold py-1",
+              style: { color: "var(--accent)", background: "none" },
+            }, "Back to log in")
+          )
+        : h("form", { onSubmit: submitLogin, className: "flex flex-col gap-3" },
+            h(Field, { label: "Employee ID", value: empId, onChange: setEmpId, placeholder: "Enter employee ID" }),
+            h(Field, { label: "Display name", value: name, onChange: setName, placeholder: "Enter your full name" }),
+            h(Field, { label: "Password", value: password, onChange: setPassword, placeholder: "Enter password", type: "password" }),
+            h("button", {
+              type: "button", onClick: goReset,
+              className: "self-end text-xs font-bold -mt-1",
+              style: { color: "var(--accent)", background: "none" },
+            }, "Forgot password?"),
+            error && h("p", { className: "text-sm", style: { color: "var(--danger)" } }, error),
+            notice && h("p", { className: "text-sm", style: { color: "var(--reed)" } }, notice),
+            h("button", { type: "submit", disabled: busy, className: "login-submit" }, busy ? "Signing in…" : "Log in")
+          ),
+      h("p", { className: "mt-5 text-xs text-center leading-relaxed", style: { color: "var(--muted)" } }, "First login with a new Employee ID creates your account. Your name and check-in are visible to colleagues.")
+    )
+  );
+}
+function Field({ label, value, onChange, placeholder, type = "text" }) {
+  return h("div", { className: "login-field" },
+    h("label", { className: "text-[11px] font-extrabold uppercase mb-1.5 block", style: { color: "var(--tealMid)", letterSpacing: "0.08em" } }, label),
+    h("input", {
+      type, value, onChange: e => onChange(e.target.value), placeholder,
+    })
+  );
+}
+
+// ---------- Top bar ----------
+function TopBar({ session, photo, onLogout, onOpenSafety, notifications, onOpenNotification }) {
+  const [showMenu, setShowMenu] = useState(false);
+  const [showAlerts, setShowAlerts] = useState(false);
+  const alerts = notifications || [];
+  const alertCount = alerts.length;
+  return h("div", {
+    className: "sticky top-0 z-20",
+    style: {
+      background: "#FFFFFF",
+      borderBottom: "1px solid var(--border)",
+      boxShadow: "0 4px 16px rgba(20,49,77,0.06)",
+    },
+  },
+    h("div", { className: "app-shell flex items-center justify-between py-3" },
+      h("div", { className: "flex items-center min-w-0" },
+        h("img", {
+          src: "/logo.png",
+          alt: "ebizframe.ai",
+          style: { height: 34, width: "auto", maxWidth: 180, objectFit: "contain", display: "block", flexShrink: 0 },
+        })
+      ),
+      h("div", { className: "flex items-center gap-2.5" },
+        h("button", {
+          onClick: onOpenSafety, title: "Emergency / safety",
+          className: "flex items-center justify-center rounded-full",
+          style: { width: 36, height: 36, background: "rgba(166,67,42,0.95)", boxShadow: "0 4px 12px rgba(166,67,42,0.35)" },
+        }, h(Icon, { name: "phone", size: 15, color: "#fff" })),
+        h("div", { className: "relative" },
+          h("button", {
+            type: "button",
+            title: "Notifications",
+            onClick: () => { setShowAlerts(open => !open); setShowMenu(false); },
+            className: "relative flex items-center justify-center rounded-full",
+            style: {
+              width: 36,
+              height: 36,
+              background: alertCount ? "var(--accent)" : "#E8EEF6",
+              boxShadow: alertCount ? "0 0 0 3px rgba(240,122,26,0.45)" : "none",
+            },
+          },
+            h(Icon, { name: "bell", size: 16, color: alertCount ? "#fff" : "var(--teal)" }),
+            alertCount > 0 && h("span", { className: "notify-dot", title: "New notification" })
+          ),
+          showAlerts && h("div", {
+            className: "absolute right-0 mt-2.5 overflow-hidden",
+            style: { background: "var(--card)", minWidth: 240, maxWidth: 300, border: "1px solid var(--border)", borderRadius: 14, boxShadow: "var(--shadow)", zIndex: 30 },
+          },
+            h("div", { className: "px-3.5 py-2.5 text-xs font-extrabold uppercase", style: { color: "var(--tealMid)", letterSpacing: "0.06em", borderBottom: "1px solid var(--border)" } }, "Notifications"),
+            alertCount === 0
+              ? h("div", { className: "px-3.5 py-3 text-sm", style: { color: "var(--muted)" } }, "No new notifications")
+              : alerts.map(n => h("button", {
+                  key: n.id,
+                  type: "button",
+                  onClick: () => { setShowAlerts(false); onOpenNotification && onOpenNotification(n); },
+                  className: "w-full text-left px-3.5 py-2.5",
+                  style: { borderTop: "1px solid var(--border)", background: "#fff" },
+                },
+                  n.title && h("div", { className: "text-[11px] font-extrabold uppercase", style: { color: "var(--accent)", letterSpacing: "0.05em" } }, n.title),
+                  h("div", { className: "text-sm font-semibold", style: { color: "var(--ink)" } }, n.text)
+                ))
+          )
+        ),
+        h("div", { className: "relative" },
+          h("button", {
+            onClick: () => { setShowMenu(s => !s); setShowAlerts(false); },
+            className: "rounded-full",
+            style: { boxShadow: "0 0 0 2px #D4DEE9" },
+          }, h(Avatar, { name: session.name, photo, size: 36, verified: session.verified })),
+          showMenu && h("div", {
+            className: "absolute right-0 mt-2.5 overflow-hidden",
+            style: { background: "var(--card)", minWidth: 200, border: "1px solid var(--border)", borderRadius: 14, boxShadow: "var(--shadow)", zIndex: 30 },
+          },
+            h("div", { className: "px-3.5 py-3 text-sm", style: { color: "var(--ink)" } },
+              h("div", { className: "flex items-center gap-1 font-bold" }, session.name, session.verified && h(Icon, { name: "shield", size: 12, color: "var(--reed)", fill: "var(--reedSoft)" })),
+              h("div", { className: "text-xs mt-0.5", style: { color: "var(--muted)" } }, session.empId)
+            ),
+            h("button", { onClick: onLogout, className: "w-full flex items-center gap-2 px-3.5 py-2.5 text-sm font-semibold", style: { color: "var(--danger)", borderTop: "1px solid var(--border)" } }, h(Icon, { name: "logout", size: 14 }), "Log out")
+          )
+        )
+      )
+    )
+  );
+}
+
+function SafetyModal({ session, onClose }) {
+  return h("div", { className: "fixed inset-0 z-50 flex items-end sm:items-center justify-center", style: { background: "rgba(0,0,0,0.4)" }, onClick: onClose },
+    h("div", { className: "w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5", style: { background: "var(--card)" }, onClick: e => e.stopPropagation() },
+      h("div", { className: "flex items-center justify-between mb-3" },
+        h("div", { className: "text-lg font-semibold flex items-center gap-2", style: { color: "var(--ink)" } }, h(Icon, { name: "shield", size: 18, color: "var(--danger)" }), "Safety & support"),
+        h("button", { onClick: onClose }, h(Icon, { name: "x", size: 18, color: "var(--muted)" }))
+      ),
+      EMERGENCY_NUMBER
+        ? h("a", { href: EMERGENCY_TEL, className: "call-link flex items-center justify-between gap-2 w-full rounded-lg py-3 px-4 text-sm font-semibold mb-2", style: { background: "var(--danger)", color: "#fff", textDecoration: "none" } },
+            h("span", { className: "flex items-center gap-2" }, h(Icon, { name: "phone", size: 16, color: "#fff" }), "Call OBS Security"),
+            h("span", null, EMERGENCY_NUMBER)
+          )
+        : h("div", { className: "rounded-lg py-3 px-4 text-sm mb-2", style: { background: "var(--dangerSoft)", color: "var(--danger)" } }, "OBS security number not configured yet."),
+      h("p", { className: "text-xs mt-2", style: { color: "var(--muted)" } }, "Signed in as " + session.name + " (" + session.empId + ").")
+    )
+  );
+}
+
+async function lookupPlace(lat, lon) {
+  const rough = Number(lat).toFixed(5) + ", " + Number(lon).toFixed(5);
+  try {
+    const res = await fetch("/api/place?lat=" + encodeURIComponent(lat) + "&lon=" + encodeURIComponent(lon));
+    const data = await res.json().catch(() => ({}));
+    return (res.ok && data.place) ? data.place : rough;
+  } catch (e) {
+    return rough;
+  }
+}
+
+const NCR_AREAS = [
+  { name: "Gurugram", minLon: 76.78, minLat: 28.22, maxLon: 77.18, maxLat: 28.55 },
+  { name: "Faridabad", minLon: 77.22, minLat: 28.28, maxLon: 77.42, maxLat: 28.50 },
+  { name: "Noida", minLon: 77.30, minLat: 28.35, maxLon: 77.65, maxLat: 28.63 },
+  { name: "Ghaziabad", minLon: 77.28, minLat: 28.62, maxLon: 77.55, maxLat: 28.78 },
+  { name: "Delhi", minLon: 76.84, minLat: 28.48, maxLon: 77.34, maxLat: 28.89 },
+];
+const NCR_BBOX = "76.78,28.22,77.65,28.89";
+
+function namedNcrCity(props) {
+  const blob = [props.city, props.county, props.district, props.locality, props.state]
+    .map(part => String(part || "").toLowerCase())
+    .join(" ");
+  if (/gurgaon|gurugram|sohna|manesar/.test(blob)) return "Gurugram";
+  if (/faridabad|ballabhgarh/.test(blob)) return "Faridabad";
+  if (/greater noida|\bnoida\b/.test(blob)) return "Noida";
+  if (/ghaziabad|indirapuram|vaishali|vasundhara|sahibabad/.test(blob)) return "Ghaziabad";
+  if (/\bdelhi\b/.test(blob)) return "Delhi";
+  return "";
+}
+
+function boxNcrCity(feature) {
+  const coords = feature && feature.geometry && feature.geometry.coordinates;
+  if (!coords || coords.length < 2) return "";
+  const lon = Number(coords[0]);
+  const lat = Number(coords[1]);
+  const area = NCR_AREAS.find(item => lon >= item.minLon && lon <= item.maxLon && lat >= item.minLat && lat <= item.maxLat);
+  return area ? area.name : "";
+}
+
+function ncrAreaName(feature) {
+  const props = (feature && feature.properties) || {};
+  const named = namedNcrCity(props);
+  const boxed = boxNcrCity(feature);
+  if (!boxed && !named) return "";
+  if (named && boxed) return named;
+  return boxed || named;
+}
+
+function ncrSuggestionLabel(props, areaName) {
+  const parts = [];
+  const locality = String(props.district || props.locality || props.city || props.street || "").trim();
+  [props.name, locality, areaName].forEach(part => {
+    const text = String(part || "").trim();
+    const sameCity = text.toLowerCase().replace("gurgaon", "gurugram") === String(areaName || "").toLowerCase();
+    if (text && !sameCity && !parts.some(existing => existing.toLowerCase() === text.toLowerCase())) parts.push(text);
+  });
+  if (areaName && !parts.some(existing => existing.toLowerCase() === areaName.toLowerCase())) parts.push(areaName);
+  const pin = String(props.postcode || "").replace(/\D/g, "");
+  const label = parts.slice(0, 3).join(", ");
+  return pin && label.indexOf(pin) === -1 ? label + " " + pin : label;
+}
+
+function ncrSuggestionMatches(query, props) {
+  const name = String(props.name || "").toLowerCase();
+  const blob = [props.name, props.street, props.district, props.locality, props.city, props.state]
+    .map(part => String(part || "").toLowerCase())
+    .filter(Boolean)
+    .join(" ");
+  const tokens = query.toLowerCase().split(/\s+/).filter(token => token.length > 1);
+  if (!tokens.length || tokens.some(token => blob.indexOf(token) === -1)) return false;
+  if (name && name.indexOf(tokens[0]) === -1) return false;
+  return true;
+}
+
+async function searchNcrPlaces(query) {
+  const url = "https://photon.komoot.io/api/?q=" + encodeURIComponent(query) + "&limit=50&lang=en&bbox=" + NCR_BBOX;
+  const res = await fetch(url);
+  const data = await res.json().catch(() => ({}));
+  const places = [];
+  const seen = new Set();
+  const rows = [];
+  (data.features || []).forEach(feature => {
+    const areaName = ncrAreaName(feature);
+    if (!areaName) return;
+    const props = (feature && feature.properties) || {};
+    if (!ncrSuggestionMatches(query, props)) return;
+    const pin = String(props.postcode || "").replace(/\D/g, "");
+    rows.push({ props, areaName, pin, name: String(props.name || "").trim().toLowerCase() });
+  });
+  const pinCounts = {};
+  rows.forEach(row => {
+    if (!row.pin) return;
+    const group = row.name + "|" + row.areaName.toLowerCase();
+    pinCounts[group] = pinCounts[group] || {};
+    pinCounts[group][row.pin] = (pinCounts[group][row.pin] || 0) + 1;
+  });
+  rows.forEach(row => {
+    if (!row.pin) {
+      const group = row.name + "|" + row.areaName.toLowerCase();
+      const counts = pinCounts[group] || {};
+      row.pin = Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0] || "";
+      if (row.pin) row.props = Object.assign({}, row.props, { postcode: row.pin });
+    }
+    const label = ncrSuggestionLabel(row.props, row.areaName);
+    const key = label.toLowerCase();
+    if (!label || seen.has(key)) return;
+    seen.add(key);
+    places.push(label);
+  });
+  return places;
+}
+function looksLikeCoords(text) {
+  return /^-?\d{1,3}\.\d+\s*,\s*-?\d{1,3}\.\d+$/.test(String(text || "").trim());
+}
+function namedPlace() {
+  for (let i = 0; i < arguments.length; i++) {
+    const text = String(arguments[i] || "").trim();
+    if (text && !looksLikeCoords(text)) return text;
+  }
+  return "";
+}
+function locationCaption(placeLabel, savedPlace, coords, geoStatus, busy) {
+  const named = namedPlace(placeLabel, savedPlace);
+  if (named) return named;
+  if (busy) return "Finding your location…";
+  if (geoStatus === "insecure") return "Open the https link, continue, then allow location";
+  if (geoStatus === "denied") return "Allow location in the browser prompt";
+  if (geoStatus === "unsupported") return "Location not supported on this device";
+  if (coords && coords.lat != null && coords.lon != null) return "Finding your location…";
+  return "Finding your location…";
+}
+
+function CheckInBanner({ myPresence, geoStatus, placeLabel, myCoords, onCheckIn, onCheckOut, onRefreshLocation, busy }) {
+  const checkedIn = !!myPresence;
+  const caption = locationCaption(placeLabel, myPresence && myPresence.place, myCoords || (myPresence && myPresence.lat != null ? { lat: myPresence.lat, lon: myPresence.lon } : null), geoStatus, busy);
+  const dot = h("span", { className: "live-dot", title: "Live location" });
+  if (!checkedIn) {
+    return h("div", { className: "app-shell pt-4" },
+      h("button", {
+        onClick: onCheckIn, disabled: busy,
+        className: "w-full flex items-center justify-center gap-2.5 rounded-2xl py-3.5 font-bold text-[15px]",
+        style: {
+          background: "var(--teal)",
+          color: "#fff",
+          opacity: busy ? 0.7 : 1,
+          boxShadow: "0 10px 22px rgba(27,58,95,0.28)",
+        },
+      }, dot, caption)
+    );
+  }
+  const myMapHref = (myPresence.lat != null && myPresence.lon != null) ? mapsPinUrl(myPresence.lat, myPresence.lon) : null;
+  return h("div", { className: "app-shell pt-4" },
+    h("div", {
+      className: "checkin-banner px-4 py-3 flex items-center justify-between",
+    },
+      h("div", { className: "flex items-center gap-2.5 min-w-0" },
+        dot,
+        h("div", { className: "min-w-0" },
+          h("div", { className: "text-sm font-bold", style: { color: "var(--reed)", lineHeight: 1.35 } }, caption),
+          h("div", { className: "text-xs mt-0.5", style: { color: "var(--muted)" } }, "Checked in · " + timeAgo(myPresence.checkinTime))
+        )
+      ),
+      h("div", { className: "flex items-center gap-0.5 shrink-0" },
+        myMapHref && h("a", { href: myMapHref, target: "_blank", rel: "noopener noreferrer", title: "My pin on Google Maps", className: "p-2 rounded-full", style: { color: "var(--reed)" } }, h(Icon, { name: "mapPin", size: 15, color: "var(--reed)" })),
+        h("button", { onClick: onRefreshLocation, title: "Refresh location", className: "p-2 rounded-full", style: { color: "var(--reed)" } }, h(Icon, { name: "refresh", size: 15 })),
+        h("button", { onClick: onCheckOut, title: "Check out", className: "p-2 rounded-full", style: { color: "var(--reed)" } }, h(Icon, { name: "x", size: 16 }))
+      )
+    )
+  );
+}
+
+// ---------- Home: profile setup + matching + nearby ----------
+function matchThreadId(a, b) {
+  return "match:" + [String(a), String(b)].sort().join(":");
+}
+
+function HomeTab({
+  session, presenceList, myCoords, placeLabel, geoStatus, profiles, rideRequests,
+  onSaveProfile, onSendRequest, onAcceptRequest, onDeclineRequest, onOpenMatchChat, onUnmatch, pushNotification,
+}) {
+  const saved = profiles[session.empId] || null;
+  const [route, setRoute] = useState((saved && saved.route) || DEFAULT_PROFILE.route);
+  const [routeFrom, setRouteFrom] = useState((saved && saved.routeFrom) || "");
+  const [routeTo, setRouteTo] = useState((saved && saved.routeTo) || "");
+  const [toSuggestions, setToSuggestions] = useState([]);
+  const [toFocused, setToFocused] = useState(false);
+  const [vehicle, setVehicle] = useState((saved && saved.vehicle) || DEFAULT_PROFILE.vehicle);
+  const [timing, setTiming] = useState((saved && saved.timing) || "");
+  const [photo, setPhoto] = useState((saved && saved.photo) || null);
+  const [saving, setSaving] = useState(false);
+  const [dirty, setDirty] = useState(false);
+  const fileRef = useRef(null);
+
+  useEffect(() => {
+    if (!saved || dirty) return;
+    setRoute(saved.route || DEFAULT_PROFILE.route);
+    setRouteFrom(saved.routeFrom || "");
+    setRouteTo(saved.routeTo || "");
+    setVehicle(saved.vehicle || DEFAULT_PROFILE.vehicle);
+    setTiming(saved.timing || "");
+    setPhoto(saved.photo || null);
+  }, [saved && saved.updatedAt]);
+
+  const timingChosen = !!timing;
+  const sameTiming = (empId) => {
+    const profile = profiles[empId];
+    return !!(timingChosen && profile && profile.timing === timing);
+  };
+  const others = timingChosen
+    ? presenceList
+      .filter(p => p.empId !== session.empId && sameTiming(p.empId))
+      .map(p => ({ ...p, distance: (myCoords && p.lat != null && p.lon != null) ? haversine(myCoords.lat, myCoords.lon, p.lat, p.lon) : null }))
+      .sort((a, b) => {
+        if (a.distance === null && b.distance === null) return a.checkinTime - b.checkinTime;
+        if (a.distance === null) return 1;
+        if (b.distance === null) return -1;
+        return a.distance - b.distance;
+      })
+    : [];
+
+  const asMatch = (p) => {
+    const present = presenceList.find(x => x.empId === p.empId);
+    return { ...p, checkedIn: !!present, place: present && present.place, distance: present && myCoords && present.lat != null && present.lon != null ? haversine(myCoords.lat, myCoords.lon, present.lat, present.lon) : null };
+  };
+  const matches = timingChosen
+    ? Object.values(profiles)
+      .filter(p => p.empId !== session.empId && p.timing === timing)
+      .map(asMatch)
+      .sort((a, b) => Number(b.checkedIn) - Number(a.checkedIn))
+    : [];
+
+  const incoming = timingChosen ? rideRequests.filter(r => r.toEmpId === session.empId && r.status === "pending" && sameTiming(r.fromEmpId)) : [];
+  const outgoing = timingChosen ? rideRequests.filter(r => r.fromEmpId === session.empId && r.status === "pending" && sameTiming(r.toEmpId)) : [];
+
+  const requestStatusFor = (empId) => {
+    const out = outgoing.find(r => r.toEmpId === empId);
+    if (out) return "sent";
+    const inn = incoming.find(r => r.fromEmpId === empId);
+    if (inn) return "incoming";
+    const accepted = rideRequests.find(r => r.status === "accepted" && ((r.fromEmpId === session.empId && r.toEmpId === empId) || (r.toEmpId === session.empId && r.fromEmpId === empId)));
+    if (accepted) return "accepted";
+    return null;
+  };
+
+  const liveFrom = namedPlace(placeLabel);
+
+  const save = async (nextTiming) => {
+    const chosen = nextTiming || timing;
+    if (!chosen) {
+      pushNotification("Select a preferred travel timing first", { title: "Timing required", icon: "clock" });
+      return;
+    }
+    const from = route === "other" ? (liveFrom || routeFrom.trim()) : routeFrom.trim();
+    const to = routeTo.trim();
+    if (route === "other" && !from) {
+      pushNotification(geoStatus === "denied" ? "Allow location so From can fill in" : "Current location is still loading", { title: "Route", icon: "mapPin" });
+      return;
+    }
+    if (route === "other" && !to) {
+      pushNotification("Choose a destination", { title: "Route", icon: "mapPin" });
+      return;
+    }
+    setSaving(true);
+    try {
+      await onSaveProfile({ route, routeFrom: from, routeTo: to, vehicle, timing: chosen, photo, name: session.name, updatedAt: Date.now() });
+      setDirty(false);
+      if (!nextTiming) pushNotification("Profile saved for this commute", { title: "Saved", icon: "save" });
+    } catch (e) {
+      pushNotification("Could not save profile", { title: "Error", icon: "x" });
+    }
+    setSaving(false);
+  };
+
+  const chooseTiming = (value) => {
+    setTiming(value);
+    setDirty(true);
+    save(value);
+  };
+
+  useEffect(() => {
+    if (route !== "other" || !liveFrom) return;
+    setRouteFrom(prev => prev === liveFrom ? prev : liveFrom);
+  }, [route, liveFrom]);
+
+  useEffect(() => {
+    if (route !== "other" || !toFocused) {
+      setToSuggestions([]);
+      return;
+    }
+    const q = routeTo.trim();
+    if (q.length < 2) {
+      setToSuggestions([]);
+      return;
+    }
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      try {
+        const places = await searchNcrPlaces(q);
+        if (!cancelled) setToSuggestions(places.filter(place => place.toLowerCase() !== q.toLowerCase()));
+      } catch (err) {
+        if (!cancelled) setToSuggestions([]);
+      }
+    }, 400);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [route, routeTo, toFocused]);
+
+  const pick = (setter) => (value) => { setter(value); setDirty(true); };
+
+  const onPickPhoto = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      pushNotification("Please choose an image file", { title: "Photo", icon: "x" });
+      return;
+    }
+    try {
+      const dataUrl = await compressImageFile(file);
+      setPhoto(dataUrl);
+      setDirty(true);
+    } catch (err) {
+      pushNotification("Could not read that photo", { title: "Photo", icon: "x" });
+    }
+  };
+
+  return h("div", { className: "app-shell py-4 flex flex-col gap-4" },
+    h(Card, { className: "home-profile", style: { padding: 0, overflow: "hidden" } },
+      h("div", { className: "home-hero" },
+        h("div", { className: "flex items-center gap-3.5 min-w-0" },
+          h("div", { className: "relative rounded-full", style: { boxShadow: "0 0 0 3px rgba(255,255,255,0.85)" } },
+            h(Avatar, { name: session.name, photo, size: 64 }),
+            h("button", {
+              type: "button",
+              title: "Add profile photo",
+              onClick: () => fileRef.current && fileRef.current.click(),
+              className: "absolute flex items-center justify-center rounded-full",
+              style: { width: 24, height: 24, right: -2, bottom: -2, background: "var(--accent)", color: "#fff", fontSize: 15, fontWeight: 800, border: "2px solid #fff", lineHeight: 1 },
+            }, "+"),
+            h("input", { ref: fileRef, type: "file", accept: "image/*", className: "hidden", onChange: onPickPhoto })
+          ),
+          h("div", { className: "min-w-0" },
+            h("div", { className: "text-2xl font-extrabold truncate", style: { color: "#fff", letterSpacing: "-0.02em" } }, session.name),
+            h("div", { className: "text-xs font-semibold mt-0.5", style: { color: "rgba(255,255,255,0.78)" } }, "Profile setup · " + session.empId),
+            h("div", { className: "text-xs mt-1", style: { color: dirty ? "#FFD7B0" : "rgba(255,255,255,0.7)" } }, dirty ? "Unsaved changes" : (saved ? "Updated for this commute" : "Tap + to add photo · choose route & timing"))
+          )
+        ),
+        h("button", {
+          onClick: () => save(), disabled: saving || !timingChosen,
+          className: "home-save shrink-0 inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-bold",
+        }, h(Icon, { name: "save", size: 14, color: "#fff" }), saving ? "Saving…" : "Save")
+      ),
+
+      h("div", { className: "home-prefs" },
+      h("div", { className: "home-prefs-row" },
+        h("div", null,
+          h(SectionLabel, null, "Route"),
+          h("div", { className: "flex flex-wrap gap-2 mb-4" },
+            ROUTES.map(r => h(Chip, { key: r.id, label: r.label, active: route === r.id, onClick: () => pick(setRoute)(r.id) }))
+          ),
+          route === "other" && h("div", { className: "route-ends mb-4" },
+            h("label", { className: "route-end" },
+              h("span", null, "From"),
+              h("input", {
+                value: liveFrom || "",
+                readOnly: true,
+                placeholder: geoStatus === "denied" ? "Allow location to fill this" : "Finding your location…",
+                "aria-label": "From, current location",
+              })
+            ),
+            h("div", { className: "route-end" },
+              h("span", null, "To"),
+              h("input", {
+                value: routeTo,
+                maxLength: 120,
+                placeholder: "Type a destination",
+                autoComplete: "off",
+                "aria-label": "To",
+                onFocus: () => setToFocused(true),
+                onBlur: () => setToFocused(false),
+                onChange: (e) => pick(setRouteTo)(e.target.value),
+              }),
+              toFocused && toSuggestions.length > 0 && h("div", { className: "route-suggest-list" },
+                toSuggestions.map(place => h("button", {
+                  key: place,
+                  type: "button",
+                  onMouseDown: (e) => {
+                    e.preventDefault();
+                    pick(setRouteTo)(place);
+                    setToSuggestions([]);
+                    setToFocused(false);
+                  },
+                }, place))
+              )
+            )
+          ),
+          h(SectionLabel, null, "Vehicle type"),
+          h("div", { className: "flex flex-wrap gap-2 mb-4" },
+            VEHICLES.map(v => h(Chip, { key: v, label: v, active: vehicle === v, onClick: () => pick(setVehicle)(v) }))
+          )
+        ),
+        h("div", null,
+          h(SectionLabel, null, "Preferred travel timing"),
+          h("div", { className: "text-xs font-semibold mb-2", style: { color: "#C0453A" } }, timingChosen ? "Only colleagues with this timing are shown, with their location." : "Required. Choose a timing before requests, matches, or check-in actions."),
+          h("div", { className: "flex flex-wrap gap-2" },
+            TIMINGS.map(t => h(Chip, {
+              key: t, label: t, active: timing === t, onClick: () => chooseTiming(t),
+              icon: h(Icon, { name: "clock", size: 12, color: timing === t ? "#fff" : "var(--tealMid)" }),
+            }))
+          )
+        )
+      )
+      )
+    ),
+
+    !timingChosen && h(Card, { style: { padding: 20 } },
+      h(EmptyState, {
+        icon: "clock",
+        title: "Select a travel timing",
+        text: "Timing is required. Until you choose one, requests, matches, and colleague actions stay closed.",
+      })
+    ),
+
+    // Requests + Matches panels
+    timingChosen && h("div", { className: "home-match-grid grid gap-4", style: { gridTemplateColumns: "repeat(auto-fit, minmax(420px, 1fr))" } },
+      h(Card, { style: { minHeight: 170, padding: 16 } },
+        h("div", { className: "section-head" },
+          h("span", { className: "icon-bubble" }, h(Icon, { name: "users", size: 16, color: "var(--accent)" })),
+          h("div", { className: "text-[15px] font-bold leading-snug", style: { color: "var(--ink)" } }, "Interested in riding with you"),
+          h("div", { className: "count-pill rounded-full text-xs flex items-center justify-center", style: { width: 28, height: 28 } }, incoming.length),
+          h("div", { className: "section-sub text-xs", style: { color: "var(--muted)" } }, "Ride requests from colleagues")
+        ),
+        incoming.length === 0
+          ? h(EmptyState, { icon: "car", title: "No requests yet", text: "When a colleague wants to ride with you, their request will show up here." })
+          : h("div", { className: "flex flex-col gap-2 mt-2" },
+              incoming.map(r => h("div", { key: r.id, className: "rounded-xl p-3", style: { background: "var(--surface)", border: "1px solid var(--border)" } },
+                h("div", { className: "flex items-center gap-2 mb-2.5" },
+                  h(Avatar, { name: r.fromName, photo: profiles[r.fromEmpId] && profiles[r.fromEmpId].photo, size: 34 }),
+                  h("div", { className: "min-w-0 flex-1" },
+                    h("div", { className: "text-sm font-bold truncate", style: { color: "var(--ink)" } }, r.fromName),
+                    h("div", { className: "text-xs", style: { color: "var(--muted)" } }, r.fromEmpId + " · " + timeAgo(r.createdTime))
+                  )
+                ),
+                h("div", { className: "flex gap-2" },
+                  h("button", { onClick: () => onAcceptRequest(r), className: "flex-1 rounded-xl py-2 text-xs font-bold", style: { background: "var(--reed)", color: "#fff" } }, "Accept"),
+                  h("button", { onClick: () => onDeclineRequest(r), className: "flex-1 rounded-xl py-2 text-xs font-bold", style: { background: "var(--border)", color: "var(--ink)" } }, "Decline")
+                )
+              ))
+            )
+      ),
+
+      h(Card, { style: { minHeight: 170, padding: 16 } },
+        h("div", { className: "section-head" },
+          h("span", { className: "icon-bubble" }, h(Icon, { name: "handshake", size: 16, color: "var(--accent)" })),
+          h("div", { className: "text-[15px] font-bold leading-snug", style: { color: "var(--ink)" } }, "Find travel partners"),
+          h("div", { className: "count-pill rounded-full text-[11px] px-2.5 py-1" }, matches.length + " match" + (matches.length === 1 ? "" : "es")),
+          h("div", { className: "section-sub text-xs", style: { color: "var(--muted)" } }, "Same timing · " + timing)
+        ),
+        matches.length === 0
+          ? h(EmptyState, {
+              icon: "handshake",
+              title: "Waiting for matches",
+              text: "No one else has selected " + timing + " yet. When they do, they appear here with their location.",
+            })
+          : h("div", { className: "flex flex-col gap-2 mt-2" },
+              matches.map(m => {
+                const st = requestStatusFor(m.empId);
+                const present = presenceList.find(x => x.empId === m.empId);
+                const hasPin = present && present.lat != null && present.lon != null;
+                const mapHref = hasPin
+                  ? (myCoords ? mapsDirectionsUrl(myCoords.lat, myCoords.lon, present.lat, present.lon) : mapsPinUrl(present.lat, present.lon))
+                  : null;
+                const openMatch = () => {
+                  if (st === "accepted") onOpenMatchChat(m);
+                  else if (!st) onSendRequest(m);
+                };
+                const status = st === "sent" ? h(Badge, { tone: "gold" }, "Requested")
+                  : st === "incoming" ? h(Badge, { tone: "reed" }, "Respond ↑")
+                  : st === "accepted" ? h("div", { className: "flex items-center gap-1.5 shrink-0" },
+                      h("button", {
+                        onClick: (e) => { e.stopPropagation(); onOpenMatchChat(m); },
+                        className: "rounded-xl px-3 py-1.5 text-xs font-bold inline-flex items-center gap-1",
+                        style: { background: "var(--teal)", color: "#fff" },
+                      }, h(Icon, { name: "chat", size: 12, color: "#fff" }), "Chat"),
+                      h("button", {
+                        onClick: (e) => { e.stopPropagation(); onUnmatch(m); },
+                        className: "rounded-xl px-3 py-1.5 text-xs font-bold",
+                        style: { background: "#fff", color: "var(--danger)", border: "1px solid var(--danger)" },
+                      }, "End chat")
+                    )
+                  : h("button", {
+                      onClick: (e) => { e.stopPropagation(); onSendRequest(m); },
+                      className: "rounded-xl px-3 py-2 text-xs font-bold shrink-0",
+                      style: { background: "linear-gradient(180deg,#F59A45,#E06A12)", color: "#fff", boxShadow: "0 8px 16px rgba(224,106,18,0.28)" },
+                    }, "Request");
+                return h("div", {
+                  key: m.empId,
+                  onClick: openMatch,
+                  className: "partner-row p-3",
+                  style: { cursor: st === "incoming" || st === "sent" ? "default" : "pointer" },
+                },
+                  h("div", { className: "flex items-start gap-2.5" },
+                    h(Avatar, { name: m.name, photo: m.photo, size: 40, verified: m.checkedIn }),
+                    h("div", { className: "min-w-0 flex-1" },
+                      h("div", { className: "flex items-start justify-between gap-2" },
+                        h("div", { className: "min-w-0" },
+                          h("div", { className: "text-sm font-bold truncate", style: { color: "var(--ink)" } }, plainLabel(m.name)),
+                          h("div", { className: "text-xs truncate", style: { color: "var(--muted)" } }, m.vehicle + " · " + routeLabel(m))
+                        ),
+                        status
+                      ),
+                      h("div", { className: "flex items-center gap-2 mt-1.5" },
+                        h("div", { className: "text-xs flex-1", style: { color: m.place ? "var(--teal)" : "var(--muted)", fontWeight: m.place ? 700 : 500, lineHeight: 1.35 } },
+                          m.place
+                            ? (m.place + (m.distance != null ? " · " + formatDistance(m.distance) : ""))
+                            : (m.checkedIn ? ("Checked in" + (m.distance != null ? " · " + formatDistance(m.distance) : "")) : "Not checked in")
+                        ),
+                        mapHref && h("a", {
+                          href: mapHref, target: "_blank", rel: "noopener noreferrer", title: "Open on Google Maps",
+                          onClick: (e) => e.stopPropagation(),
+                          className: "inline-flex items-center justify-center rounded-full shrink-0",
+                          style: { width: 30, height: 30, background: "var(--teal)", textDecoration: "none" },
+                        }, h(Icon, { name: "mapPin", size: 14, color: "#fff" }))
+                      )
+                    )
+                  )
+                );
+              })
+            )
+      )
+    ),
+
+    // Colleagues currently at OBS with the same timing
+    timingChosen && h(Card, { style: { padding: 16 } },
+      h("div", { className: "flex items-center gap-3 mb-3" },
+        h("div", {
+          className: "rounded-full flex items-center justify-center text-base font-extrabold",
+          style: { width: 42, height: 42, background: "var(--accent)", color: "#fff" },
+        }, others.length),
+        h("div", null,
+          h("div", { className: "text-[15px] font-bold", style: { color: "var(--ink)" } }, others.length + (others.length === 1 ? " colleague" : " colleagues") + " at OBS"),
+          h("div", { className: "text-xs", style: { color: "var(--muted)" } }, "Checked in with the same timing")
+        )
+      ),
+      others.length === 0
+        ? h(EmptyState, { icon: "users", title: "No one with this timing is checked in", text: "When a colleague with " + timing + " checks in, their location and distance show here." })
+        : h("div", { className: "flex flex-col gap-2.5" },
+            others.map(p => {
+              const hasPin = p.lat != null && p.lon != null;
+              const mapHref = hasPin
+                ? (myCoords ? mapsDirectionsUrl(myCoords.lat, myCoords.lon, p.lat, p.lon) : mapsPinUrl(p.lat, p.lon))
+                : null;
+              const matched = requestStatusFor(p.empId) === "accepted";
+              return h("div", {
+                key: p.empId,
+                onClick: () => {
+                  if (matched) onOpenMatchChat({ empId: p.empId, name: p.name });
+                  else if (mapHref) window.open(mapHref, "_blank", "noopener,noreferrer");
+                },
+                className: "partner-row flex items-center gap-3 p-2.5",
+                style: { cursor: matched || mapHref ? "pointer" : "default" },
+              },
+                h(Avatar, { name: p.name, photo: profiles[p.empId] && profiles[p.empId].photo, size: 40, verified: true }),
+                h("div", { className: "flex-1 min-w-0" },
+                  h("div", { className: "text-sm font-bold", style: { color: "var(--ink)" } }, plainLabel(p.name)),
+                  h("div", { className: "text-xs font-semibold", style: { color: "var(--teal)", lineHeight: 1.35 } }, p.place || "Exact location unavailable"),
+                  h("div", { className: "text-xs", style: { color: "var(--muted)", textDecoration: "none" } }, plainLabel(p.empId) + " · Checked in " + timeAgo(p.checkinTime))
+                ),
+                h("div", { className: "flex items-center gap-1.5 shrink-0" },
+                  p.distance !== null ? h(Badge, { tone: "reed" }, formatDistance(p.distance)) : h(Badge, { tone: "muted" }, "Location off"),
+                  matched && h("button", {
+                    onClick: (e) => { e.stopPropagation(); onOpenMatchChat({ empId: p.empId, name: p.name }); },
+                    className: "rounded-xl px-3 py-1.5 text-xs font-bold",
+                    style: { background: "var(--teal)", color: "#fff" },
+                  }, "Chat"),
+                  mapHref && h("a", {
+                    href: mapHref,
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                    title: myCoords ? "Open directions on Google Maps" : "Open location on Google Maps",
+                    onClick: (e) => e.stopPropagation(),
+                    className: "inline-flex items-center justify-center rounded-full",
+                    style: { width: 34, height: 34, background: "var(--teal)", color: "#fff", textDecoration: "none" },
+                  }, h(Icon, { name: "mapPin", size: 15, color: "#fff" }))
+                )
+              );
+            })
+          )
+    )
+  );
+}
+
+// Each employee only sees personal threads with people they have chatted with,
+// plus their ride group. Older messages saved in the shared room stay in that pair's history.
+function buildChatThreads(session, messages, profiles, rideRequests) {
+  if (!session) return [];
+  const threads = [];
+  const byId = {};
+  const ensure = (peerId, peerName, active) => {
+    if (!peerId || peerId === session.empId) return null;
+    const id = matchThreadId(session.empId, peerId);
+    if (!byId[id]) {
+      const profile = profiles[peerId];
+      byId[id] = {
+        id,
+        peerId,
+        peerName: peerName || (profile && profile.name) || peerId,
+        active: !!active,
+        fromGlobal: false,
+      };
+      threads.push(byId[id]);
+    } else if (peerName && byId[id].peerName === peerId) {
+      byId[id].peerName = peerName;
+    }
+    if (active) byId[id].active = true;
+    return byId[id];
+  };
+  (rideRequests || []).forEach(r => {
+    if (r.status !== "accepted") return;
+    if (r.fromEmpId !== session.empId && r.toEmpId !== session.empId) return;
+    const peerId = r.fromEmpId === session.empId ? r.toEmpId : r.fromEmpId;
+    const peerName = r.fromEmpId === session.empId ? r.toName : r.fromName;
+    ensure(peerId, peerName, true);
+  });
+  (messages || []).forEach(m => {
+    const gid = m.groupId || "";
+    if (gid.indexOf("match:") !== 0) return;
+    const parts = gid.split(":");
+    if (parts.indexOf(session.empId) === -1) return;
+    const peerId = parts[1] === session.empId ? parts[2] : parts[1];
+    ensure(peerId, m.empId === peerId ? m.name : "", false);
+  });
+  const globalSenders = {};
+  (messages || []).forEach(m => {
+    if ((m.groupId || "global") !== "global" || !m.empId) return;
+    if (!globalSenders[m.empId]) globalSenders[m.empId] = m.name || "";
+  });
+  if (globalSenders[session.empId]) {
+    Object.keys(globalSenders).forEach(empId => {
+      if (empId === session.empId) return;
+      const thread = ensure(empId, globalSenders[empId], false);
+      if (thread) thread.fromGlobal = true;
+    });
+  }
+  const latest = (thread) => {
+    let time = 0;
+    (messages || []).forEach(m => {
+      if (messageInPersonalThread(m, session, thread) && (m.time || 0) > time) time = m.time || 0;
+    });
+    return time;
+  };
+  threads.sort((a, b) => latest(b) - latest(a));
+  return threads;
+}
+
+function messageInPersonalThread(message, session, thread) {
+  if (!message || !session || !thread) return false;
+  if (message.groupId === thread.id) return true;
+  if ((message.groupId || "global") !== "global" || !thread.fromGlobal) return false;
+  return message.empId === session.empId || message.empId === thread.peerId;
+}
+
+// ---------- Chat tab ----------
+function ChatTab({ messages, session, myGroup, matchThreads, chatFocus, presenceMap, myCoords, profiles, onSend, onUnmatch }) {
+  const firstScope = (chatFocus && chatFocus !== "global" && (matchThreads || []).some(t => t.id === chatFocus))
+    ? chatFocus
+    : ((matchThreads && matchThreads[0]) ? matchThreads[0].id : (myGroup ? "mine" : ""));
+  const [scope, setScope] = useState(firstScope);
+  const [text, setText] = useState("");
+  const bottomRef = useRef(null);
+  useEffect(() => { if (chatFocus && chatFocus !== "global") setScope(chatFocus); }, [chatFocus]);
+  useEffect(() => {
+    const known = (matchThreads || []).some(t => t.id === scope) || (scope === "mine" && myGroup);
+    if (known) return;
+    if (matchThreads && matchThreads[0]) setScope(matchThreads[0].id);
+    else if (myGroup) setScope("mine");
+    else setScope("");
+  }, [matchThreads, scope, myGroup]);
+  useEffect(() => { setText(""); }, [scope]);
+  useEffect(() => { bottomRef.current && bottomRef.current.scrollIntoView({ block: "end" }); }, [messages, scope]);
+  const activeMatch = (matchThreads || []).find(t => t.id === scope);
+  const visible = messages.filter(m => {
+    if (activeMatch) return messageInPersonalThread(m, session, activeMatch);
+    if (scope === "mine") return !!(myGroup && m.groupId === myGroup.id);
+    return false;
+  });
+  const submit = (e) => {
+    e.preventDefault();
+    if (!text.trim() || !scope || scope === "global") return;
+    onSend(text.trim(), scope);
+    setText("");
+  };
+
+  const scopeBtn = (id, label, disabled) => h("button", {
+    type: "button",
+    onClick: () => !disabled && setScope(id),
+    disabled: !!disabled,
+    className: "px-4 py-2 rounded-full text-xs font-bold",
+    style: {
+      background: scope === id ? "var(--teal)" : "#fff",
+      color: scope === id ? "#fff" : "var(--tealMid)",
+      border: "1.5px solid " + (scope === id ? "var(--teal)" : "#B8C9DB"),
+      opacity: disabled ? 0.45 : 1,
+      boxShadow: "none",
+    },
+  }, label);
+
+  return h("div", {
+    className: "flex flex-col w-full",
+    style: { height: "100%", minHeight: 0 },
+  },
+    h("div", { className: "pt-2 pb-2 flex flex-wrap gap-2 shrink-0" },
+      (matchThreads || []).map(t => scopeBtn(t.id, plainLabel(t.peerName))),
+      scopeBtn("mine", "Group chat", !myGroup),
+      !matchThreads.length && !myGroup && h("span", { className: "text-[11px] self-center", style: { color: "var(--muted)" } }, "Personal and group chats appear here"),
+      activeMatch && activeMatch.active && h("button", {
+        type: "button",
+        onClick: () => onUnmatch({ empId: activeMatch.peerId, name: activeMatch.peerName }),
+        className: "px-4 py-2 rounded-full text-xs font-bold",
+        style: { background: "#fff", color: "var(--danger)", border: "1.5px solid var(--danger)" },
+      }, "End chat")
+    ),
+
+    h("div", {
+      className: "flex-1 overflow-y-auto",
+      style: {
+        minHeight: 0,
+        background: "linear-gradient(180deg, rgba(255,255,255,0.45), rgba(244,247,243,0.9))",
+        borderRadius: 18,
+        border: "1px solid rgba(201,210,203,0.7)",
+        padding: "16px 14px",
+      },
+    },
+      h("div", {
+        className: "mx-auto w-full flex flex-col",
+        style: { maxWidth: 720, minHeight: "100%" },
+      },
+        visible.length === 0
+          ? h("div", { className: "flex-1 flex items-center justify-center" },
+              h(EmptyState, {
+                icon: "chat",
+                title: activeMatch ? ("Chat with " + activeMatch.peerName) : (scope === "mine" ? "No group messages yet" : "No chats yet"),
+                text: activeMatch
+                  ? ("Only you and " + activeMatch.peerName + " can see this chat. It stays in your login history.")
+                  : (scope === "mine"
+                    ? "Coordinate pickup and ETA with your ride group here."
+                    : "Open a match and start a chat. Personal and group chats are the only ones shown."),
+              })
+            )
+          : h("div", { className: "flex flex-col gap-3.5 mt-auto" },
+              visible.map(m => {
+                const mine = m.empId === session.empId;
+                const sender = presenceMap[m.empId];
+                const photo = profiles && profiles[m.empId] && profiles[m.empId].photo;
+                const dist = (!mine && myCoords && sender && sender.lat != null)
+                  ? haversine(myCoords.lat, myCoords.lon, sender.lat, sender.lon)
+                  : null;
+                return h("div", {
+                  key: m.id,
+                  className: "flex items-end gap-2 w-full",
+                  style: { justifyContent: mine ? "flex-end" : "flex-start" },
+                },
+                  !mine && h(Avatar, { name: m.name, photo, size: 34 }),
+                  h("div", {
+                    style: {
+                      maxWidth: "75%",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: mine ? "flex-end" : "flex-start",
+                    },
+                  },
+                    h("div", { className: "flex items-center gap-2 mb-1 px-1 flex-wrap", style: { justifyContent: mine ? "flex-end" : "flex-start" } },
+                      !mine && h("span", { className: "text-xs font-bold", style: { color: "var(--teal)" } }, m.name),
+                      !mine && sender && sender.place && h("span", { className: "text-[11px] font-semibold", style: { color: "var(--tealMid)" } }, sender.place),
+                      dist !== null && h(Badge, { tone: "gold" }, formatDistance(dist)),
+                      h("span", { className: "text-[11px] font-semibold", style: { color: "var(--muted)" } }, clockTime(m.time))
+                    ),
+                    h("div", {
+                      className: "text-sm leading-relaxed font-medium",
+                      style: {
+                        display: "inline-block",
+                        width: "fit-content",
+                        maxWidth: "100%",
+                        padding: "11px 15px",
+                        borderRadius: mine ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+                        background: mine ? "var(--teal)" : "var(--card)",
+                        color: mine ? "#fff" : "var(--ink)",
+                        border: mine ? "none" : "1px solid var(--border)",
+                        boxShadow: mine
+                          ? "0 8px 18px rgba(20,56,59,0.22)"
+                          : "0 4px 12px rgba(18,35,38,0.06)",
+                        wordBreak: "break-word",
+                        whiteSpace: "pre-wrap",
+                      },
+                    }, m.text)
+                  ),
+                  mine && h(Avatar, { name: session.name, photo: profiles && profiles[session.empId] && profiles[session.empId].photo, size: 34 })
+                );
+              }),
+              h("div", { ref: bottomRef })
+            )
+      )
+    ),
+
+    h("form", {
+      onSubmit: submit,
+      className: "pt-3 flex gap-2.5 items-center shrink-0",
+      style: {
+        position: "sticky",
+        bottom: 0,
+        background: "linear-gradient(180deg, transparent, rgba(228,233,227,0.95) 28%)",
+        paddingBottom: 4,
+      },
+    },
+      h("div", { className: "flex gap-2.5 items-center w-full mx-auto", style: { maxWidth: 720 } },
+        h("input", {
+          value: text,
+          onChange: e => setText(e.target.value),
+          placeholder: activeMatch ? ("Message " + activeMatch.peerName + "…") : (scope === "mine" ? "Message your group…" : "Select a chat"),
+          disabled: !scope,
+          className: "flex-1 rounded-2xl px-4 py-3.5 text-sm outline-none font-medium",
+          style: {
+            border: "1px solid var(--border)",
+            background: "var(--card)",
+            color: "var(--ink)",
+            boxShadow: "var(--shadowSoft)",
+          },
+        }),
+        h("button", {
+          type: "submit",
+          className: "flex items-center justify-center rounded-2xl shrink-0",
+          style: {
+            width: 50,
+            height: 50,
+            background: "var(--teal)",
+            color: "#fff",
+            boxShadow: "0 8px 18px rgba(27,58,95,0.25)",
+          },
+        }, h(Icon, { name: "send", size: 18, color: "#fff" }))
+      )
+    )
+  );
+}
+
+// ---------- Groups tab ----------
+function GroupsTab({ groups, session, myGroup, onCreate, onJoin, onLeave }) {
+  const [showForm, setShowForm] = useState(false);
+  const [gName, setGName] = useState("");
+  const [pickup, setPickup] = useState(PICKUP_POINTS[0]);
+  const [expanded, setExpanded] = useState(null);
+  const active = groups.filter(g => g.status !== "completed");
+  const submitCreate = (e) => { e.preventDefault(); onCreate(gName.trim() || null, pickup); setGName(""); setShowForm(false); };
+
+  return h("div", { className: "py-4 flex flex-col gap-3" },
+    myGroup && myGroup.status === "ready" && h("div", { className: "rounded-xl px-4 py-3 flex items-center gap-2", style: { background: "var(--goldSoft)" } },
+      h(Icon, { name: "check", size: 16, color: "var(--gold)" }),
+      h("span", { className: "text-sm font-semibold", style: { color: "var(--gold)" } }, "Your ride is ready — meet at " + myGroup.pickupPoint)
+    ),
+    h("div", { className: "flex items-center justify-between" },
+      h("h2", { className: "text-lg", style: { fontFamily: SERIF, color: "var(--ink)" } }, "Ride groups"),
+      h("button", { onClick: () => setShowForm(s => !s), disabled: !!myGroup, className: "flex items-center gap-1 text-sm font-semibold rounded-full px-3 py-1.5", style: { background: myGroup ? "var(--border)" : "var(--teal)", color: myGroup ? "var(--muted)" : "#fff" } }, h(Icon, { name: "plus", size: 14 }), "New")
+    ),
+    myGroup && h("p", { className: "text-xs", style: { color: "var(--muted)" } }, "You're in a group already — leave it before joining or creating another."),
+    showForm && h(Card, null,
+      h("form", { onSubmit: submitCreate, className: "flex flex-col gap-2" },
+        h("input", { value: gName, onChange: e => setGName(e.target.value), placeholder: "Group name (optional)", className: "rounded-lg px-3 py-2 text-sm outline-none", style: { border: "1px solid var(--border)", background: "var(--card)", color: "var(--ink)" } }),
+        h("select", { value: pickup, onChange: e => setPickup(e.target.value), className: "rounded-lg px-3 py-2 text-sm outline-none", style: { border: "1px solid var(--border)", background: "var(--card)", color: "var(--ink)" } },
+          PICKUP_POINTS.map(p => h("option", { key: p, value: p }, p))
+        ),
+        h("button", { type: "submit", className: "rounded-lg py-2 text-sm font-semibold", style: { background: "var(--gold)", color: "#fff" } }, "Create group")
+      )
+    ),
+    (active.length === 0 && !showForm)
+      ? h(Card, null, h("p", { className: "text-sm", style: { color: "var(--muted)" } }, "No ride groups yet. Start one and invite colleagues nearby to join."))
+      : active.map(g => {
+          const isMine = myGroup && myGroup.id === g.id;
+          const isOpen = expanded === g.id;
+          return h(Card, { key: g.id },
+            h("button", { className: "w-full flex items-center justify-between", onClick: () => setExpanded(isOpen ? null : g.id) },
+              h("div", { style: { textAlign: "left" } },
+                h("div", { className: "text-sm font-semibold", style: { color: "var(--ink)" } }, g.name),
+                h("div", { className: "text-xs", style: { color: "var(--muted)" } }, g.pickupPoint + " · " + g.members.length + "/" + AUTO_SHARE_THRESHOLD + " members")
+              ),
+              h("div", { className: "flex items-center gap-2" },
+                h(Badge, { tone: g.status === "ready" ? "gold" : g.status === "departed" ? "reed" : "muted" }, g.status),
+                h("span", { style: { display: "inline-block", transform: isOpen ? "rotate(180deg)" : "none" } }, h(Icon, { name: "chevronDown", size: 16, color: "var(--muted)" }))
+              )
+            ),
+            isOpen && h("div", { className: "mt-3 pt-3", style: { borderTop: "1px solid var(--border)" } },
+              h("div", { className: "flex flex-col gap-1.5 mb-3" },
+                g.members.map(mid => h("div", { key: mid, className: "flex items-center gap-2 text-sm", style: { color: "var(--ink)" } },
+                  h("div", { className: "rounded-full", style: { width: 6, height: 6, background: "var(--reed)" } }),
+                  (g.memberNames && g.memberNames[mid]) || mid
+                ))
+              ),
+              (!myGroup && g.status !== "departed") && h("button", { onClick: () => onJoin(g.id), className: "w-full rounded-lg py-2 text-sm font-semibold", style: { background: "var(--teal)", color: "#fff" } }, "Join group"),
+              (isMine && g.status !== "departed") && h("button", { onClick: () => onLeave(g.id), className: "w-full rounded-lg py-2 text-sm font-semibold", style: { background: "var(--border)", color: "var(--danger)" } }, "Leave group")
+            )
+          );
+        })
+  );
+}
+
+// ---------- Ride tab (with daily summary) ----------
+function RideTab({ myGroup, session, groups, feedback, onStart, onComplete, onSubmitFeedback, feedbackGiven }) {
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+
+  const todaysCompleted = groups.filter(g => g.status === "completed" && g.completedTime && isToday(g.completedTime) && g.members.includes(session.empId));
+  const colleagueSet = new Set();
+  todaysCompleted.forEach(g => g.members.forEach(m => { if (m !== session.empId) colleagueSet.add(m); }));
+
+  const summary = h(Card, { style: { marginBottom: 4 } },
+    h("div", { className: "text-sm font-semibold mb-2", style: { color: "var(--ink)" } }, "Today's summary"),
+    h("div", { className: "flex gap-4" },
+      h("div", null, h("div", { className: "text-xl font-bold", style: { color: "var(--teal)" } }, todaysCompleted.length), h("div", { className: "text-xs", style: { color: "var(--muted)" } }, todaysCompleted.length === 1 ? "trip" : "trips")),
+      h("div", null, h("div", { className: "text-xl font-bold", style: { color: "var(--teal)" } }, colleagueSet.size), h("div", { className: "text-xs", style: { color: "var(--muted)" } }, "colleagues connected"))
+    )
+  );
+
+  if (!myGroup) {
+    return h("div", { className: "py-4 flex flex-col gap-3" },
+      summary,
+      h("div", { className: "flex flex-col items-center text-center gap-2 py-6" },
+        h(Icon, { name: "car", size: 28, color: "var(--muted)" }),
+        h("p", { className: "text-sm", style: { color: "var(--muted)", maxWidth: 260 } }, "You're not in a ride group yet. Join or create one from the Groups tab to see pickup details here.")
+      )
+    );
+  }
+
+  const completed = myGroup.status === "completed";
+  const canStart = !completed && myGroup.status !== "departed" && myGroup.members.length >= 2;
+
+  return h("div", { className: "py-4 flex flex-col gap-3" },
+    summary,
+    h(Card, null,
+      h("div", { className: "text-sm", style: { color: "var(--muted)" } }, "Meeting point"),
+      h("div", { className: "text-lg font-semibold flex items-center gap-1", style: { color: "var(--ink)" } }, h(Icon, { name: "mapPin", size: 16, color: "var(--gold)" }), myGroup.pickupPoint),
+      h("div", { className: "mt-3 flex flex-wrap gap-1.5" },
+        myGroup.members.map(mid => h(Badge, { key: mid, tone: "muted" }, (myGroup.memberNames && myGroup.memberNames[mid]) || mid))
+      )
+    ),
+    myGroup.status === "departed"
+      ? h(Card, { style: { background: "var(--reedSoft)", border: "none" } },
+          h("div", { className: "flex items-center gap-2 mb-1" }, h("div", { className: "rounded-full", style: { width: 8, height: 8, background: "var(--reed)" } }), h("span", { className: "text-sm font-semibold", style: { color: "var(--reed)" } }, "Ride in progress")),
+          h("button", { onClick: () => onComplete(myGroup.id), className: "mt-2 w-full rounded-lg py-2 text-sm font-semibold", style: { background: "var(--reed)", color: "#fff" } }, "Confirm drop-off & complete ride")
+        )
+      : completed
+        ? null
+        : h("button", { onClick: () => onStart(myGroup.id), disabled: !canStart, className: "w-full rounded-xl py-3 font-semibold", style: { background: canStart ? "var(--gold)" : "var(--border)", color: canStart ? "#fff" : "var(--muted)" } },
+            canStart ? "Start shared ride (" + myGroup.members.length + "/" + AUTO_SHARE_THRESHOLD + ")" : "Need at least 2 members to start"
+          ),
+    (myGroup.status === "completed" && !feedbackGiven) && h(Card, null,
+      h("div", { className: "text-sm font-semibold mb-2", style: { color: "var(--ink)" } }, "How was the ride?"),
+      h("div", { className: "flex gap-1 mb-3" },
+        [1, 2, 3, 4, 5].map(n => h("button", { key: n, onClick: () => setRating(n) }, h(Icon, { name: "star", size: 26, color: "var(--gold)", fill: n <= rating ? "var(--gold)" : "none" })))
+      ),
+      h("textarea", { value: comment, onChange: e => setComment(e.target.value), placeholder: "Optional note — pricing, pickup point clarity, coordination issues, etc.", className: "w-full rounded-lg px-3 py-2 text-sm outline-none mb-2", style: { border: "1px solid var(--border)", minHeight: 70, background: "var(--card)", color: "var(--ink)" } }),
+      h("button", { onClick: () => onSubmitFeedback(myGroup.id, rating, comment), disabled: rating === 0, className: "w-full rounded-lg py-2 text-sm font-semibold", style: { background: rating ? "var(--teal)" : "var(--border)", color: rating ? "#fff" : "var(--muted)" } }, "Submit feedback")
+    ),
+    (myGroup.status === "completed" && feedbackGiven) && h("p", { className: "text-sm text-center", style: { color: "var(--muted)" } }, "Thanks — your feedback was recorded.")
+  );
+}
+
+// ---------- Bottom nav ----------
+function BottomNav({ tab, setTab, chatBadge, requestBadge }) {
+  const items = [
+    { id: "home", label: "Home", icon: "home" },
+    { id: "chat", label: "Chat", icon: "chat" },
+    { id: "groups", label: "Groups", icon: "users" },
+    { id: "ride", label: "Ride", icon: "car" },
+  ];
+  return h("div", {
+    className: "bottom-nav fixed bottom-0 left-0 right-0 z-20",
+    style: { paddingBottom: "env(safe-area-inset-bottom, 0px)" },
+  },
+    h("div", { className: "app-shell flex" },
+      items.map((it, idx) => {
+        const active = tab === it.id;
+        return h("button", {
+          key: it.id,
+          onClick: () => setTab(it.id),
+          className: "nav-item flex-1 flex flex-col items-center gap-1 py-2.5 relative",
+          style: { borderLeft: idx === 0 ? "none" : "1px solid #EEF2F7" },
+        },
+          h(Icon, { name: it.icon, size: 22, color: active ? "var(--accent)" : "var(--muted)" }),
+          h("span", { className: "text-[11px]", style: { color: active ? "var(--accent)" : "var(--muted)", fontWeight: active ? 800 : 600 } }, it.label),
+          active && h("div", { style: { position: "absolute", bottom: 4, width: 18, height: 3, borderRadius: 99, background: "var(--accent)" } }),
+          (it.id === "chat" && chatBadge) && h("span", { className: "absolute rounded-full", style: { top: 6, right: "28%", width: 8, height: 8, background: "var(--accent)", boxShadow: "0 0 0 2px #fff" } }),
+          (it.id === "home" && requestBadge) && h("span", { className: "absolute rounded-full", style: { top: 6, right: "28%", width: 8, height: 8, background: "var(--danger)", boxShadow: "0 0 0 2px #fff" } })
+        );
+      })
+    )
+  );
+}
+
+// ---------- App ----------
+function App() {
+  const [session, setSession] = useState(null);
+  const [loadingSession, setLoadingSession] = useState(true);
+  const [tab, setTab] = useState("home");
+  const [chatFocus, setChatFocus] = useState("global");
+  const [db, setDb] = useState(null);
+  const [dbReady, setDbReady] = useState(false);
+  const [showSafety, setShowSafety] = useState(false);
+
+  const [presence, setPresence] = useState({});
+  const [profiles, setProfiles] = useState({});
+  const [rideRequests, setRideRequests] = useState([]);
+  const [groups, setGroups] = useState([]);
+  const [chat, setChat] = useState([]);
+  const [feedback, setFeedback] = useState([]);
+  const [myCoords, setMyCoords] = useState(null);
+  const [placeLabel, setPlaceLabel] = useState("");
+  const [geoStatus, setGeoStatus] = useState("idle");
+  const [checkInBusy, setCheckInBusy] = useState(false);
+  const lastSeenChat = useRef(0);
+  const [hasNewChat, setHasNewChat] = useState(false);
+
+  const [notifications, setNotifications] = useState([]);
+  const pushNotification = useCallback((text, opts = {}) => {
+    const id = Date.now() + "-" + Math.random().toString(36).slice(2, 6);
+    const kind = opts.kind || "info";
+    setNotifications(list => [...list, { id, text, title: opts.title || null, icon: opts.icon || "bell", kind, threadId: opts.threadId || null }]);
+    setTimeout(() => setNotifications(list => list.filter(n => n.id !== id)), opts.duration || 6000);
+    if (opts.sound !== false && (kind === "chat" || kind === "request" || opts.sound === true)) {
+      playNotifyDing(kind === "request" ? "request" : "chat");
+    }
+    if (kind === "chat" || kind === "request" || opts.push === true) {
+      tryBrowserPush(opts.title || "ESS Travel Buddy", text);
+    }
+  }, []);
+
+  useEffect(() => { setSession(readSession()); setLoadingSession(false); }, []);
+
+  const liveRef = useRef({ db: null, session: null, presence: {} });
+  liveRef.current = { db, session, presence };
+
+  useEffect(() => {
+    if (!session) return;
+    if (!window.isSecureContext) {
+      setGeoStatus("insecure");
+      return;
+    }
+    if (!navigator.geolocation) {
+      setGeoStatus("unsupported");
+      return;
+    }
+    let cancelled = false;
+    let geocodeAt = 0;
+    let lastPlace = "";
+    const describe = async (lat, lon) => {
+      const now = Date.now();
+      if (now - geocodeAt < 20000 && lastPlace && !looksLikeCoords(lastPlace)) return lastPlace;
+      geocodeAt = now;
+      const place = await lookupPlace(lat, lon);
+      if (cancelled || looksLikeCoords(place)) return lastPlace;
+      lastPlace = place;
+      setPlaceLabel(place);
+      return place;
+    };
+    const watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        if (cancelled) return;
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        setMyCoords({ lat, lon });
+        setGeoStatus("locked");
+        describe(lat, lon);
+      },
+      () => { if (!cancelled) setGeoStatus(prev => prev === "locked" ? prev : "denied"); },
+      { enableHighAccuracy: true, maximumAge: 10000, timeout: 12000 }
+    );
+    return () => {
+      cancelled = true;
+      navigator.geolocation.clearWatch(watchId);
+    };
+  }, [session && session.empId]);
+
+  useEffect(() => {
+    if (!session || !db || !myCoords) return;
+    const me = liveRef.current.presence[session.empId];
+    const place = namedPlace(placeLabel, me && me.place);
+    if (!place) return;
+    const samePlace = !!me && (me.place || "") === place;
+    const close = !!me && me.lat != null && haversine(me.lat, me.lon, myCoords.lat, myCoords.lon) < 30;
+    if (samePlace && close) return;
+    db.doc("presence/" + session.empId).set({
+      empId: session.empId,
+      name: session.name,
+      lat: myCoords.lat,
+      lon: myCoords.lon,
+      place,
+      checkinTime: (me && me.checkinTime) || Date.now(),
+    }).catch(() => {});
+  }, [db, myCoords, placeLabel, session]);
+
+  useEffect(() => { if (session) ensureNotifyPermission(); }, [session]);
+
+  useEffect(() => {
+    let unsubP, unsubProf, unsubReq, unsubG, unsubC, unsubF;
+    let cancelled = false;
+    (async () => {
+      try {
+        if (!window.EssTravelApi || !window.EssTravelApi.createDbClient) {
+          setDbReady(true);
+          return;
+        }
+        const dbNs = await window.EssTravelApi.createDbClient().init();
+        if (cancelled) return;
+        setDb(dbNs);
+        unsubP = dbNs.collection("presence").onSnapshot(snap => {
+          const obj = {}; snap.docs.forEach(d => { if (d.exists) obj[d.id] = d.data(); }); setPresence(obj);
+        });
+        unsubProf = dbNs.collection("profiles").onSnapshot(snap => {
+          const obj = {}; snap.docs.forEach(d => { if (d.exists) obj[d.id] = d.data(); }); setProfiles(obj);
+        });
+        unsubReq = dbNs.collection("rideRequests").onSnapshot(snap => {
+          setRideRequests(snap.docs.filter(d => d.exists).map(d => ({ id: d.id, ...d.data() })));
+        });
+        unsubG = dbNs.collection("groups").onSnapshot(snap => {
+          setGroups(snap.docs.filter(d => d.exists).map(d => ({ id: d.id, ...d.data() })));
+        });
+        unsubC = dbNs.collection("chat").orderBy("time", "desc").limit(100).onSnapshot(snap => {
+          const msgs = snap.docs.filter(d => d.exists).map(d => ({ id: d.id, ...d.data() }));
+          setChat(msgs);
+        });
+        unsubF = dbNs.collection("feedback").onSnapshot(snap => {
+          setFeedback(snap.docs.filter(d => d.exists).map(d => ({ id: d.id, ...d.data() })));
+        });
+        setDbReady(true);
+      } catch (err) {
+        console.error("Failed to connect to backend:", err);
+        setDbReady(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+      unsubP && unsubP(); unsubProf && unsubProf(); unsubReq && unsubReq();
+      unsubG && unsubG(); unsubC && unsubC(); unsubF && unsubF();
+    };
+  }, []);
+
+  useEffect(() => { if (tab === "chat") { setHasNewChat(false); lastSeenChat.current = Date.now(); } }, [tab]);
+
+  // notification: new colleague checked in
+  const prevPresenceRef = useRef(null);
+  useEffect(() => {
+    if (prevPresenceRef.current && session) {
+      const prevKeys = new Set(Object.keys(prevPresenceRef.current));
+      Object.values(presence).forEach(p => {
+        if (!prevKeys.has(p.empId) && p.empId !== session.empId) {
+          pushNotification(p.name + " just checked in", { title: "Check-in", icon: "mapPin" });
+        }
+      });
+    }
+    prevPresenceRef.current = presence;
+  }, [presence, session, pushNotification]);
+
+  const activeGroup = session ? groups.find(g => (g.members || []).includes(session.empId) && g.status !== "completed") : null;
+  const latestCompletedToday = session
+    ? (groups
+        .filter(g => g.status === "completed" && g.completedTime && isToday(g.completedTime) && (g.members || []).includes(session.empId))
+        .sort((a, b) => (b.completedTime || 0) - (a.completedTime || 0))[0] || null)
+    : null;
+  const myGroup = activeGroup;
+  const rideGroup = activeGroup || latestCompletedToday;
+  const matchThreads = buildChatThreads(session, chat, profiles, rideRequests);
+  const chatGroup = myGroup || (session
+    ? (groups.filter(g => (g.members || []).includes(session.empId)).sort((a, b) => (b.createdTime || 0) - (a.createdTime || 0))[0] || null)
+    : null);
+
+  // notification: my group became ready
+  const prevGroupStatusRef = useRef(null);
+  useEffect(() => {
+    const status = myGroup ? myGroup.status : null;
+    if (myGroup && prevGroupStatusRef.current !== "ready" && status === "ready") {
+      pushNotification("Meet at " + myGroup.pickupPoint, { title: "Ride ready", icon: "car" });
+    }
+    prevGroupStatusRef.current = status;
+  }, [myGroup && myGroup.status, myGroup && myGroup.pickupPoint]);
+
+  // notification: new chat message → right-side popup (skip history on load)
+  const seenChatIds = useRef(new Set());
+  useEffect(() => {
+    if (!session) return;
+    const myGroupId = myGroup ? myGroup.id : null;
+    const now = Date.now();
+    chat.forEach(m => {
+      if (!m.id || seenChatIds.current.has(m.id)) return;
+      seenChatIds.current.add(m.id);
+      if (m.empId === session.empId) return;
+      // Ignore old messages that were already in the server when we opened the app
+      if (!m.time || now - m.time > 45000) return;
+      const matchForMe = !!(m.groupId && m.groupId.indexOf("match:") === 0 && m.groupId.split(":").slice(1).indexOf(session.empId) !== -1);
+      const legacyForMe = (m.groupId || "global") === "global" && chat.some(other => other.empId === session.empId && (other.groupId || "global") === "global");
+      const forMe = (myGroupId && m.groupId === myGroupId) || matchForMe || legacyForMe;
+      if (!forMe) return;
+      const preview = (m.text || "").length > 90 ? (m.text.slice(0, 90) + "…") : (m.text || "");
+      const personalId = matchForMe ? m.groupId : (legacyForMe ? matchThreadId(session.empId, m.empId) : "mine");
+      const scopeLabel = personalId === "mine" ? "Group chat" : "Personal chat";
+      pushNotification((m.name || "Colleague") + ": " + preview, { title: scopeLabel, icon: "chat", kind: "chat", threadId: personalId });
+      if (tab !== "chat") setHasNewChat(true);
+    });
+  }, [chat, session, myGroup && myGroup.id, tab, pushNotification]);
+
+  // notification: incoming ride interest
+  const seenRequestIds = useRef(new Set());
+  useEffect(() => {
+    if (!session) return;
+    const now = Date.now();
+    rideRequests.forEach(r => {
+      if (!r.id || seenRequestIds.current.has(r.id)) return;
+      seenRequestIds.current.add(r.id);
+      if (r.toEmpId !== session.empId || r.status !== "pending") return;
+      if (!r.createdTime || now - r.createdTime > 45000) return;
+      pushNotification((r.fromName || "Colleague") + " wants to ride with you", { title: "Ride request", icon: "car", kind: "request" });
+    });
+  }, [rideRequests, session, pushNotification]);
+
+  const handleLogin = (s) => { writeSession(s); setSession(s); };
+  const handleLogout = () => { clearSession(); setSession(null); };
+
+  const doCheckIn = async (lat, lon) => {
+    if (!db || !session) return;
+    let place = "";
+    if (lat != null && lon != null) {
+      place = await lookupPlace(lat, lon);
+      if (!looksLikeCoords(place)) setPlaceLabel(place);
+      else place = "";
+    }
+    await db.doc("presence/" + session.empId).set({ empId: session.empId, name: session.name, lat, lon, place, checkinTime: Date.now() });
+  };
+
+  const handleCheckIn = () => {
+    setCheckInBusy(true);
+    if (!navigator.geolocation) { setGeoStatus("unsupported"); doCheckIn(null, null).finally(() => setCheckInBusy(false)); return; }
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => { const { latitude, longitude } = pos.coords; setMyCoords({ lat: latitude, lon: longitude }); setGeoStatus("locked"); await doCheckIn(latitude, longitude); setCheckInBusy(false); },
+      async () => { setGeoStatus("denied"); await doCheckIn(null, null); setCheckInBusy(false); },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  };
+
+  const handleRefreshLocation = () => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => { const { latitude, longitude } = pos.coords; setMyCoords({ lat: latitude, lon: longitude }); setGeoStatus("locked"); await doCheckIn(latitude, longitude); },
+      () => setGeoStatus("denied"),
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
+
+  const handleCheckOut = async () => {
+    if (!db || !session) return;
+    await db.doc("presence/" + session.empId).delete();
+    const g = groups.find(g => g.members.includes(session.empId) && g.status !== "completed");
+    if (g) {
+      const newMembers = g.members.filter(m => m !== session.empId);
+      if (newMembers.length === 0) { await db.doc("groups/" + g.id).delete(); }
+      else { const newNames = { ...(g.memberNames || {}) }; delete newNames[session.empId]; await db.doc("groups/" + g.id).update({ members: newMembers, memberNames: newNames }); }
+    }
+  };
+
+  const handleCreateGroup = async (name, pickupPoint) => {
+    if (!db || !session) return;
+    await db.collection("groups").add({ name: name || (session.name.split(" ")[0] + "'s group"), members: [session.empId], memberNames: { [session.empId]: session.name }, createdTime: Date.now(), status: "forming", pickupPoint });
+  };
+  const handleJoinGroup = async (groupId) => {
+    if (!db || !session) return;
+    const ref = db.doc("groups/" + groupId);
+    const snap = await ref.get();
+    if (!snap.exists) return;
+    const data = snap.data();
+    if (data.members.includes(session.empId)) return;
+    const members = [...data.members, session.empId];
+    const memberNames = { ...(data.memberNames || {}), [session.empId]: session.name };
+    const status = members.length >= AUTO_SHARE_THRESHOLD ? "ready" : data.status;
+    await ref.update({ members, memberNames, status });
+  };
+  const handleLeaveGroup = async (groupId) => {
+    if (!db) return;
+    const ref = db.doc("groups/" + groupId);
+    const snap = await ref.get();
+    if (!snap.exists) return;
+    const data = snap.data();
+    const members = data.members.filter(m => m !== session.empId);
+    if (members.length === 0) { await ref.delete(); return; }
+    const memberNames = { ...(data.memberNames || {}) };
+    delete memberNames[session.empId];
+    const status = members.length >= AUTO_SHARE_THRESHOLD ? "ready" : (data.status === "ready" ? "forming" : data.status);
+    await ref.update({ members, memberNames, status });
+  };
+  const handleStartRide = async (groupId) => { if (db) await db.doc("groups/" + groupId).update({ status: "departed" }); };
+  const handleCompleteRide = async (groupId) => { if (db) await db.doc("groups/" + groupId).update({ status: "completed", completedTime: Date.now() }); };
+  const handleSubmitFeedback = async (groupId, rating, comment) => {
+    if (!db || !session) return;
+    await db.collection("feedback").add({ groupId, empId: session.empId, rating, comment, time: Date.now() });
+  };
+  const handleSend = async (text, scope) => {
+    if (!db || !session) return;
+    let groupId = "";
+    if (scope === "mine" && chatGroup) groupId = chatGroup.id;
+    else if (typeof scope === "string" && scope.indexOf("match:") === 0) groupId = scope;
+    if (!groupId) return;
+    await db.collection("chat").add({ empId: session.empId, name: session.name, text, time: Date.now(), groupId });
+  };
+
+  const handleSaveProfile = async (profile) => {
+    if (!db || !session) throw new Error("not ready");
+    await db.doc("profiles/" + session.empId).set({ empId: session.empId, ...profile });
+  };
+
+  const handleOpenMatchChat = (partner) => {
+    if (!session || !partner) return;
+    setChatFocus(matchThreadId(session.empId, partner.empId));
+    setTab("chat");
+    setHasNewChat(false);
+    lastSeenChat.current = Date.now();
+  };
+
+  const handleSendRequest = async (partner) => {
+    if (!db || !session) return;
+    await db.collection("rideRequests").add({
+      fromEmpId: session.empId,
+      fromName: session.name,
+      toEmpId: partner.empId,
+      toName: partner.name,
+      status: "pending",
+      createdTime: Date.now(),
+    });
+    pushNotification("Request sent to " + partner.name, { title: "Ride request", icon: "car" });
+  };
+
+  const handleAcceptRequest = async (req) => {
+    if (!db || !session) return;
+    let groupId = myGroup && myGroup.id;
+    if (!groupId) {
+      const created = await db.collection("groups").add({
+        name: (session.name.split(" ")[0] || "Ride") + " + " + (req.fromName.split(" ")[0] || "partner"),
+        members: [session.empId, req.fromEmpId],
+        memberNames: { [session.empId]: session.name, [req.fromEmpId]: req.fromName },
+        createdTime: Date.now(),
+        status: "forming",
+        pickupPoint: PICKUP_POINTS[0],
+      });
+      groupId = created && created.id;
+    } else if (!myGroup.members.includes(req.fromEmpId)) {
+      const members = [...myGroup.members, req.fromEmpId];
+      const memberNames = { ...(myGroup.memberNames || {}), [req.fromEmpId]: req.fromName };
+      const status = members.length >= AUTO_SHARE_THRESHOLD ? "ready" : myGroup.status;
+      await db.doc("groups/" + myGroup.id).update({ members, memberNames, status });
+    }
+    await db.doc("rideRequests/" + req.id).update({ status: "accepted", groupId: groupId || null });
+    pushNotification(req.fromName + " added to your ride group", { title: "Accepted", icon: "check" });
+    setTab("groups");
+  };
+
+  const handleDeclineRequest = async (req) => {
+    if (!db) return;
+    await db.doc("rideRequests/" + req.id).update({ status: "declined" });
+  };
+
+  const handleUnmatch = async (partner) => {
+    if (!db || !session || !partner) return;
+    const name = partner.name || "this colleague";
+    if (!window.confirm("End the chat with " + name + "? Either of you can send a new request later.")) return;
+    const related = rideRequests.filter(r =>
+      r.status === "accepted" &&
+      ((r.fromEmpId === session.empId && r.toEmpId === partner.empId) || (r.toEmpId === session.empId && r.fromEmpId === partner.empId))
+    );
+    await Promise.all(related.map(r => db.doc("rideRequests/" + r.id).update({ status: "ended" })));
+    if (chatFocus === matchThreadId(session.empId, partner.empId)) setChatFocus("global");
+    pushNotification("Chat with " + name + " ended", { title: "Chat ended", icon: "x" });
+  };
+
+  if (loadingSession) return h("div", { style: { minHeight: "100vh", background: "var(--teal)" } });
+  if (!session) return h(LoginScreen, { onLogin: handleLogin });
+
+  const presenceList = Object.values(presence).filter(p => Date.now() - p.checkinTime < PRESENCE_EXPIRY_MS);
+  const myPresence = presence[session.empId];
+  const feedbackGiven = rideGroup && feedback.some(f => f.groupId === rideGroup.id && f.empId === session.empId);
+  const pendingRequests = rideRequests.filter(r => r.toEmpId === session.empId && r.status === "pending").length;
+
+  const isChat = tab === "chat";
+
+  return h("div", {
+    style: {
+      height: "100dvh",
+      minHeight: "100vh",
+      display: "flex",
+      flexDirection: "column",
+      overflow: isChat ? "hidden" : "auto",
+    },
+  },
+    h(NotificationStack, {
+      notifications,
+      onOpen: (n) => {
+        if (n.kind === "chat") { if (n.threadId) setChatFocus(n.threadId); setTab("chat"); setHasNewChat(false); lastSeenChat.current = Date.now(); }
+        if (n.kind === "request") setTab("home");
+        setNotifications(list => list.filter(x => x.id !== n.id));
+      },
+    }),
+    h(TopBar, {
+      session,
+      photo: profiles[session.empId] && profiles[session.empId].photo,
+      onLogout: handleLogout,
+      onOpenSafety: () => setShowSafety(true),
+      notifications,
+      onOpenNotification: (n) => {
+        if (n.kind === "chat") { if (n.threadId) setChatFocus(n.threadId); setTab("chat"); setHasNewChat(false); lastSeenChat.current = Date.now(); }
+        if (n.kind === "request") setTab("home");
+        setNotifications(list => list.filter(x => x.id !== n.id));
+      },
+    }),
+    showSafety && h(SafetyModal, { session, onClose: () => setShowSafety(false) }),
+    !dbReady && h("div", { className: "app-shell pt-3 text-xs text-center shrink-0", style: { color: "var(--muted)" } }, "Connecting to live data…"),
+    dbReady && !db && h("div", { className: "app-shell pt-3 text-xs text-center shrink-0", style: { color: "var(--danger)" } }, "Cannot reach the backend — start the server (start.bat) and open http://127.0.0.1:5000"),
+    !isChat && h(CheckInBanner, { myPresence, geoStatus, placeLabel, myCoords, busy: checkInBusy, onCheckIn: handleCheckIn, onCheckOut: handleCheckOut, onRefreshLocation: handleRefreshLocation }),
+    h("div", {
+      className: isChat ? "app-shell flex-1 min-h-0" : "pb-28",
+      style: isChat ? { paddingBottom: 78, display: "flex", flexDirection: "column", minHeight: 0 } : undefined,
+    },
+      tab === "home" && h(HomeTab, {
+        session, presenceList, myCoords, placeLabel, geoStatus, profiles, rideRequests,
+        onSaveProfile: handleSaveProfile,
+        onSendRequest: handleSendRequest,
+        onAcceptRequest: handleAcceptRequest,
+        onDeclineRequest: handleDeclineRequest,
+        onOpenMatchChat: handleOpenMatchChat,
+        onUnmatch: handleUnmatch,
+        pushNotification,
+      }),
+      tab === "chat" && h(ChatTab, { messages: chat, session, myGroup: chatGroup, matchThreads, chatFocus, presenceMap: presence, myCoords, profiles, onSend: handleSend, onUnmatch: handleUnmatch }),
+      tab === "groups" && h("div", { className: "app-shell" }, h(GroupsTab, { groups, session, myGroup, onCreate: handleCreateGroup, onJoin: handleJoinGroup, onLeave: handleLeaveGroup })),
+      tab === "ride" && h("div", { className: "app-shell" }, h(RideTab, { myGroup: rideGroup, session, groups, feedback, onStart: handleStartRide, onComplete: handleCompleteRide, onSubmitFeedback: handleSubmitFeedback, feedbackGiven }))
+    ),
+    h(BottomNav, { tab, setTab, chatBadge: hasNewChat, requestBadge: pendingRequests > 0 })
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+document.getElementById("root").dataset.mounted = "true";
+root.render(h(App));
+</script>
+</body>
+</html>
