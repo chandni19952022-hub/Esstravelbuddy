@@ -81,10 +81,15 @@
     }
 
     function connectSse() {
+      if (typeof EventSource === "undefined") return;
       if (es) es.close();
       es = new EventSource(API_BASE + "/api/events");
       es.onmessage = (ev) => {
         try { applyServerSnapshot(JSON.parse(ev.data)); } catch (e) { console.error(e); }
+      };
+      es.onerror = () => {
+        if (es) es.close();
+        es = null;
       };
     }
 
@@ -114,7 +119,7 @@
         await refresh();
         ready = true;
         connectSse();
-        setInterval(() => { refresh().catch(() => {}); }, 15000);
+        setInterval(() => { refresh().catch(() => {}); }, 8000);
         return api;
       },
       collection(name) {
