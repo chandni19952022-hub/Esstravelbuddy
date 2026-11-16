@@ -70,6 +70,11 @@
   @media (min-width: 900px) {
     .app-shell { padding-left: 28px; padding-right: 28px; }
   }
+  .home-match-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: minmax(0, 1fr);
+  }
   @media (min-width: 1100px) {
     .home-match-grid { grid-template-columns: 1fr 1fr !important; }
     .home-prefs-row {
@@ -262,6 +267,48 @@
     min-width: 0;
     width: 100%;
     font-size: 16px;
+  }
+  .brand-logo {
+    height: 34px;
+    width: auto;
+    max-width: 180px;
+    object-fit: contain;
+    display: block;
+  }
+  .partner-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .page-pad { padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)); }
+  @media (max-width: 720px) {
+    input, select, textarea { font-size: 16px; }
+    .brand-logo { height: 26px; max-width: 42vw; }
+    .top-actions { gap: 8px; }
+    .home-hero {
+      flex-wrap: wrap;
+      align-items: flex-start;
+      padding: 16px;
+      gap: 12px;
+    }
+    .home-hero .home-save { margin-left: auto; }
+    .home-prefs { padding: 14px 14px 16px; }
+    .checkin-banner { align-items: flex-start; gap: 8px; }
+    .chip {
+      white-space: normal;
+      max-width: 100%;
+      line-height: 1.3;
+      text-align: left;
+    }
+    .login-screen { padding: 20px 14px; align-items: flex-start; }
+    .login-card { padding: 22px 16px 18px; border-radius: 22px; }
+    .login-field input { font-size: 16px; }
+    .section-head { column-gap: 8px; }
+    .partner-row { padding: 10px; }
+    .colleague-row { flex-wrap: wrap; }
+    .notify-alert { max-width: calc(100vw - 28px); }
   }
   .nav-item { transition: color 0.15s ease; }
   .empty-well {
@@ -542,7 +589,7 @@ function Chip({ label, active, onClick, icon }) {
   return h("button", {
     type: "button",
     onClick,
-    className: "chip inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold whitespace-nowrap" + (active ? " is-active" : ""),
+    className: "chip inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold" + (active ? " is-active" : ""),
   }, icon || null, label);
 }
 function SectionLabel({ children }) {
@@ -805,10 +852,10 @@ function TopBar({ session, photo, onLogout, onOpenSafety, notifications, onOpenN
         h("img", {
           src: "/logo.png",
           alt: "ebizframe.ai",
-          style: { height: 34, width: "auto", maxWidth: 180, objectFit: "contain", display: "block", flexShrink: 0 },
+          className: "brand-logo",
         })
       ),
-      h("div", { className: "flex items-center gap-2.5" },
+      h("div", { className: "top-actions flex items-center gap-2.5 shrink-0" },
         h("button", {
           onClick: onOpenSafety, title: "Emergency / safety",
           className: "flex items-center justify-center rounded-full",
@@ -1044,12 +1091,12 @@ function CheckInBanner({ myPresence, geoStatus, placeLabel, myCoords, onCheckIn,
   const myMapHref = (myPresence.lat != null && myPresence.lon != null) ? mapsPinUrl(myPresence.lat, myPresence.lon) : null;
   return h("div", { className: "app-shell pt-4" },
     h("div", {
-      className: "checkin-banner px-4 py-3 flex items-center justify-between",
+      className: "checkin-banner px-4 py-3 flex items-center justify-between gap-2",
     },
       h("div", { className: "flex items-center gap-2.5 min-w-0" },
         dot,
         h("div", { className: "min-w-0" },
-          h("div", { className: "text-sm font-bold", style: { color: "var(--reed)", lineHeight: 1.35 } }, caption),
+          h("div", { className: "text-sm font-bold", style: { color: "var(--reed)", lineHeight: 1.35, overflowWrap: "anywhere" } }, caption),
           h("div", { className: "text-xs mt-0.5", style: { color: "var(--muted)" } }, "Checked in · " + timeAgo(myPresence.checkinTime))
         )
       ),
@@ -1317,7 +1364,7 @@ function HomeTab({
     ),
 
     // Requests + Matches panels
-    timingChosen && h("div", { className: "home-match-grid grid gap-4", style: { gridTemplateColumns: "repeat(auto-fit, minmax(420px, 1fr))" } },
+    timingChosen && h("div", { className: "home-match-grid" },
       h(Card, { style: { minHeight: 170, padding: 16 } },
         h("div", { className: "section-head" },
           h("span", { className: "icon-bubble" }, h(Icon, { name: "users", size: 16, color: "var(--accent)" })),
@@ -1397,12 +1444,12 @@ function HomeTab({
                   h("div", { className: "flex items-start gap-2.5" },
                     h(Avatar, { name: m.name, photo: m.photo, size: 40, verified: m.checkedIn }),
                     h("div", { className: "min-w-0 flex-1" },
-                      h("div", { className: "flex items-start justify-between gap-2" },
-                        h("div", { className: "min-w-0" },
+                      h("div", { className: "flex items-start justify-between gap-2 flex-wrap" },
+                        h("div", { className: "min-w-0 flex-1" },
                           h("div", { className: "text-sm font-bold truncate", style: { color: "var(--ink)" } }, plainLabel(m.name)),
-                          h("div", { className: "text-xs truncate", style: { color: "var(--muted)" } }, m.vehicle + " · " + routeLabel(m))
+                          h("div", { className: "text-xs", style: { color: "var(--muted)", overflowWrap: "anywhere" } }, m.vehicle + " · " + routeLabel(m))
                         ),
-                        status
+                        h("div", { className: "partner-actions" }, status)
                       ),
                       h("div", { className: "flex items-center gap-2 mt-1.5" },
                         h("div", { className: "text-xs flex-1", style: { color: m.place ? "var(--teal)" : "var(--muted)", fontWeight: m.place ? 700 : 500, lineHeight: 1.35 } },
@@ -1452,7 +1499,7 @@ function HomeTab({
                   if (matched) onOpenMatchChat({ empId: p.empId, name: p.name });
                   else if (mapHref) window.open(mapHref, "_blank", "noopener,noreferrer");
                 },
-                className: "partner-row flex items-center gap-3 p-2.5",
+                className: "partner-row colleague-row flex items-center gap-3 p-2.5",
                 style: { cursor: matched || mapHref ? "pointer" : "default" },
               },
                 h(Avatar, { name: p.name, photo: profiles[p.empId] && profiles[p.empId].photo, size: 40, verified: true }),
@@ -2278,7 +2325,9 @@ function App() {
       minHeight: "100vh",
       display: "flex",
       flexDirection: "column",
-      overflow: isChat ? "hidden" : "auto",
+      overflowX: "hidden",
+      overflowY: isChat ? "hidden" : "auto",
+      maxWidth: "100%",
     },
   },
     h(NotificationStack, {
@@ -2306,7 +2355,7 @@ function App() {
     dbReady && !db && h("div", { className: "app-shell pt-3 text-xs text-center shrink-0", style: { color: "var(--danger)" } }, "Cannot reach the backend — start the server (start.bat) and open http://127.0.0.1:5000"),
     !isChat && h(CheckInBanner, { myPresence, geoStatus, placeLabel, myCoords, busy: checkInBusy, onCheckIn: handleCheckIn, onCheckOut: handleCheckOut, onRefreshLocation: handleRefreshLocation }),
     h("div", {
-      className: isChat ? "app-shell chat-pane" : "pb-28",
+      className: isChat ? "app-shell chat-pane" : "page-pad",
     },
       tab === "home" && h(HomeTab, {
         session, presenceList, myCoords, placeLabel, geoStatus, profiles, rideRequests,
