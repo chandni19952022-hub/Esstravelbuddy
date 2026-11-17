@@ -613,15 +613,32 @@ def events():
 
 @app.get("/")
 def index():
+    global FRONTEND
+    FRONTEND = _resolve_frontend()
+    index_file = FRONTEND / "index.html"
+    if not index_file.is_file():
+        return (
+            "<h1>Frontend not found in deployment</h1>"
+            f"<p>Looked for index.html under <code>{FRONTEND}</code></p>",
+            500,
+            {"content-type": "text/html; charset=utf-8"},
+        )
     return send_from_directory(FRONTEND, "index.html")
 
 
 @app.get("/<path:path>")
 def static_files(path: str):
+    global FRONTEND
+    FRONTEND = _resolve_frontend()
+    if path.startswith("api/"):
+        return jsonify({"error": "not found", "path": path}), 404
     target = FRONTEND / path
     if target.is_file():
         return send_from_directory(FRONTEND, path)
-    return send_from_directory(FRONTEND, "index.html")
+    index_file = FRONTEND / "index.html"
+    if index_file.is_file():
+        return send_from_directory(FRONTEND, "index.html")
+    return jsonify({"error": "not found", "path": path}), 404
 
 
 def _lan_urls(port: int) -> list[str]:
