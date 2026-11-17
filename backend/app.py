@@ -20,9 +20,23 @@ from flask import Flask, Response, jsonify, request, send_from_directory
 from flask_cors import CORS
 
 ROOT = Path(__file__).resolve().parent.parent
-FRONTEND = ROOT / "frontend"
-if not (FRONTEND / "index.html").is_file() and (ROOT / "public" / "index.html").is_file():
-    FRONTEND = ROOT / "public"
+
+
+def _resolve_frontend() -> Path:
+    candidates = [
+        ROOT / "frontend",
+        ROOT / "public",
+        Path(__file__).resolve().parent / "frontend",
+        Path.cwd() / "frontend",
+        Path.cwd() / "public",
+    ]
+    for candidate in candidates:
+        if (candidate / "index.html").is_file():
+            return candidate
+    return candidates[0]
+
+
+FRONTEND = _resolve_frontend()
 
 app = Flask(__name__, static_folder=None)
 CORS(app)
