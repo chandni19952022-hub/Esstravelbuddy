@@ -1,0 +1,5 @@
+[tool.vercel]
+entrypoint = "backend/app.py:app"
+
+[tool.vercel.scripts]
+build = "python build.py"

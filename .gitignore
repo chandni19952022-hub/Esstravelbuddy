@@ -8,3 +8,4 @@ backend/certs/
 *.log
 .DS_Store
 Thumbs.db
+public/

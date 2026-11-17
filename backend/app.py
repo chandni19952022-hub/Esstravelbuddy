@@ -21,6 +21,8 @@ from flask_cors import CORS
 
 ROOT = Path(__file__).resolve().parent.parent
 FRONTEND = ROOT / "frontend"
+if not (FRONTEND / "index.html").is_file() and (ROOT / "public" / "index.html").is_file():
+    FRONTEND = ROOT / "public"
 
 app = Flask(__name__, static_folder=None)
 CORS(app)
