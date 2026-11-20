@@ -6,9 +6,12 @@
   const API_BASE = (global.COMMUTE_API_BASE || "").replace(/\/$/, "");
   const OBJECT_COLLECTIONS = new Set(["presence", "profiles"]);
   const LIST_COLLECTIONS = ["groups", "chat", "feedback", "rideRequests"];
+  const POLL_VISIBLE_MS = 20000;
+  const POLL_HIDDEN_MS = 60000;
 
   function createDbClient() {
     let snapshot = {
+      version: -1,
       presence: {},
       profiles: {},
       groups: [],
@@ -26,6 +29,8 @@
     };
     let es = null;
     let ready = false;
+    let pollTimer = null;
+    let sseRetryTimer = null;
 
     function emit(collection) {
       const set = listeners[collection];
@@ -63,7 +68,10 @@
     }
 
     function applyServerSnapshot(data) {
+      if (!data || typeof data !== "object") return;
+      if (data.version != null && data.version === snapshot.version) return;
       snapshot = {
+        version: data.version != null ? data.version : snapshot.version,
         presence: data.presence || {},
         profiles: data.profiles || {},
         groups: data.groups || [],
@@ -75,13 +83,14 @@
     }
 
     async function refresh() {
-      const res = await fetch(API_BASE + "/api/snapshot");
+      const res = await fetch(API_BASE + "/api/snapshot", { cache: "no-store" });
       if (!res.ok) throw new Error("snapshot failed: " + res.status);
       applyServerSnapshot(await res.json());
     }
 
     function connectSse() {
       if (typeof EventSource === "undefined") return;
+      if (document.hidden) return;
       if (es) es.close();
       es = new EventSource(API_BASE + "/api/events");
       es.onmessage = (ev) => {
@@ -90,9 +99,18 @@
       es.onerror = () => {
         if (es) es.close();
         es = null;
-        // Serverless hosts close SSE quickly; reconnect later (polling still covers gaps).
-        setTimeout(connectSse, 15000);
+        if (sseRetryTimer) clearTimeout(sseRetryTimer);
+        sseRetryTimer = setTimeout(connectSse, 20000);
       };
+    }
+
+    function schedulePoll() {
+      if (pollTimer) clearInterval(pollTimer);
+      const ms = document.hidden ? POLL_HIDDEN_MS : POLL_VISIBLE_MS;
+      pollTimer = setInterval(() => {
+        if (document.hidden) return;
+        refresh().catch(() => {});
+      }, ms);
     }
 
     async function request(method, path, body) {
@@ -121,7 +139,16 @@
         await refresh();
         ready = true;
         connectSse();
-        setInterval(() => { refresh().catch(() => {}); }, 8000);
+        schedulePoll();
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) {
+            if (es) { es.close(); es = null; }
+          } else {
+            refresh().catch(() => {});
+            connectSse();
+          }
+          schedulePoll();
+        });
         return api;
       },
       collection(name) {

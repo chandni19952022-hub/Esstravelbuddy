@@ -10,12 +10,14 @@
 <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
 <title>ESS Travel Buddy</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preload" href="/logo.png" as="image" />
+<link rel="preload" href="/utilities.css" as="style" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/utilities.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
-<script src="https://cdn.tailwindcss.com"></script>
 <style>
   :root {
     --bg: #EAF0F6;
@@ -300,6 +302,15 @@
     opacity: 0.45;
     box-shadow: none;
   }
+  .brand-logo-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    min-width: 0;
+  }
   .brand-logo {
     height: 34px;
     width: auto;
@@ -307,6 +318,21 @@
     object-fit: contain;
     display: block;
   }
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+    min-height: 36px;
+    padding: 6px 10px 6px 6px;
+    border-radius: 999px;
+    border: 1.5px solid #D4DEE9;
+    background: #F7F9FC;
+    color: var(--teal);
+    font-size: 12px;
+    font-weight: 800;
+  }
+  .back-btn:active { transform: scale(0.97); }
   .partner-actions {
     display: flex;
     align-items: center;
@@ -315,10 +341,20 @@
     flex-wrap: wrap;
   }
   .page-pad { padding-bottom: 24px; }
+  .checkin-banner-wrap { flex-shrink: 0; }
   @media (max-width: 720px) {
     input, select, textarea { font-size: 16px; }
-    .brand-logo { height: 26px; max-width: 42vw; }
+    .brand-logo { height: 26px; max-width: min(42vw, 140px); }
+    .back-btn { padding: 6px 8px 6px 4px; font-size: 11px; }
+    .back-btn-label { display: none; }
     .top-actions { gap: 8px; }
+    .app-shell {
+      padding-left: max(12px, env(safe-area-inset-left));
+      padding-right: max(12px, env(safe-area-inset-right));
+    }
+    .panel { border-radius: 18px; }
+    .bottom-nav .nav-item { min-height: 56px; padding-top: 8px; padding-bottom: 8px; }
+    .home-match-grid { gap: 12px; }
     .chat-composer { padding: 12px 2px 14px; }
     .chat-composer input {
       padding-top: 14px !important;
@@ -354,6 +390,16 @@
     .partner-row { padding: 10px; }
     .colleague-row { flex-wrap: wrap; }
     .notify-alert { max-width: calc(100vw - 28px); }
+  }
+  @media (max-width: 380px) {
+    .brand-logo { height: 22px; max-width: 36vw; }
+    .top-actions button { width: 32px !important; height: 32px !important; }
+    .chat-thread-bar { gap: 6px; }
+    .chat-thread-bar button { padding-left: 12px; padding-right: 12px; }
+  }
+  @media (min-width: 900px) {
+    .back-btn-label { display: inline; }
+    .chat-pane, .main-scroll { max-width: 920px; margin-left: auto; margin-right: auto; width: 100%; }
   }
   .nav-item { transition: color 0.15s ease; }
   .empty-well {
@@ -618,6 +664,7 @@ function Icon(props) {
     case "x": return h("svg", common, h("line", { x1: 18, y1: 6, x2: 6, y2: 18 }), h("line", { x1: 6, y1: 6, x2: 18, y2: 18 }));
     case "nav": return h("svg", { ...common, fill: fill }, h("polygon", { points: "12 2 19 21 12 17 5 21 12 2" }));
     case "chevronDown": return h("svg", common, h("polyline", { points: "6 9 12 15 18 9" }));
+    case "chevronLeft": return h("svg", common, h("polyline", { points: "15 18 9 12 15 6" }));
     case "refresh": return h("svg", common, h("polyline", { points: "23 4 23 10 17 10" }), h("polyline", { points: "1 20 1 14 7 14" }), h("path", { d: "M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" }));
     case "shield": return h("svg", { ...common, fill: fill }, h("path", { d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" }));
     case "phone": return h("svg", { ...common, fill: fill }, h("path", { d: "M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" }));
@@ -879,11 +926,12 @@ function Field({ label, value, onChange, placeholder, type = "text" }) {
 }
 
 // ---------- Top bar ----------
-function TopBar({ session, photo, onLogout, onOpenSafety, notifications, onOpenNotification }) {
+function TopBar({ tab, session, photo, onLogout, onOpenSafety, notifications, onOpenNotification, onHome, onBack }) {
   const [showMenu, setShowMenu] = useState(false);
   const [showAlerts, setShowAlerts] = useState(false);
   const alerts = notifications || [];
   const alertCount = alerts.length;
+  const showBack = tab && tab !== "home";
   return h("div", {
     className: "shrink-0 z-20",
     style: {
@@ -893,12 +941,26 @@ function TopBar({ session, photo, onLogout, onOpenSafety, notifications, onOpenN
     },
   },
     h("div", { className: "app-shell flex items-center justify-between py-3" },
-      h("div", { className: "flex items-center min-w-0" },
-        h("img", {
-          src: "/logo.png",
-          alt: "ebizframe.ai",
-          className: "brand-logo",
-        })
+      h("div", { className: "flex items-center gap-2 min-w-0" },
+        showBack && h("button", {
+          type: "button",
+          className: "back-btn",
+          onClick: onBack,
+          "aria-label": "Go back",
+        }, h(Icon, { name: "chevronLeft", size: 18, color: "var(--teal)" }), h("span", { className: "back-btn-label" }, "Back")),
+        h("button", {
+          type: "button",
+          className: "brand-logo-btn",
+          onClick: onHome,
+          title: "Home",
+          "aria-label": "Go to home",
+        },
+          h("img", {
+            src: "/logo.png",
+            alt: "ebizframe.ai",
+            className: "brand-logo",
+          })
+        )
       ),
       h("div", { className: "top-actions flex items-center gap-2.5 shrink-0" },
         h("button", {
@@ -1940,7 +2002,7 @@ function RideTab({ myGroup, session, groups, feedback, onStart, onComplete, onSu
 }
 
 // ---------- Bottom nav ----------
-function BottomNav({ tab, setTab, chatBadge, requestBadge }) {
+function BottomNav({ tab, onTab, chatBadge, requestBadge }) {
   const items = [
     { id: "home", label: "Home", icon: "home" },
     { id: "chat", label: "Chat", icon: "chat" },
@@ -1957,7 +2019,7 @@ function BottomNav({ tab, setTab, chatBadge, requestBadge }) {
         return h("button", {
           key: it.id,
           type: "button",
-          onClick: () => setTab(it.id),
+          onClick: () => onTab(it.id),
           className: "nav-item flex-1 flex flex-col items-center gap-1 py-2.5 relative",
           style: { borderLeft: idx === 0 ? "none" : "1px solid #EEF2F7" },
         },
@@ -1972,15 +2034,47 @@ function BottomNav({ tab, setTab, chatBadge, requestBadge }) {
   );
 }
 
+const APP_TABS = ["home", "chat", "groups", "ride"];
+function readTabFromUrl() {
+  const hash = String(location.hash || "").replace(/^#/, "").split("?")[0];
+  return APP_TABS.includes(hash) ? hash : "home";
+}
+
 // ---------- App ----------
 function App() {
   const [session, setSession] = useState(null);
   const [loadingSession, setLoadingSession] = useState(true);
-  const [tab, setTab] = useState("home");
+  const [tab, setTabState] = useState(() => readTabFromUrl());
   const [chatFocus, setChatFocus] = useState("global");
   const [db, setDb] = useState(null);
   const [dbReady, setDbReady] = useState(false);
   const [showSafety, setShowSafety] = useState(false);
+
+  const goTab = useCallback((next, opts = {}) => {
+    const tabId = APP_TABS.includes(next) ? next : "home";
+    setTabState((prev) => {
+      if (prev === tabId) {
+        if (location.hash !== "#" + tabId) history.replaceState({ tab: tabId }, "", "#" + tabId);
+        return prev;
+      }
+      if (opts.replace) history.replaceState({ tab: tabId }, "", "#" + tabId);
+      else history.pushState({ tab: tabId }, "", "#" + tabId);
+      return tabId;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!location.hash || !APP_TABS.includes(String(location.hash).replace(/^#/, "").split("?")[0])) {
+      history.replaceState({ tab: "home" }, "", "#home");
+      setTabState("home");
+    }
+    const onPop = () => {
+      setShowSafety(false);
+      setTabState(readTabFromUrl());
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
 
   const [presence, setPresence] = useState({});
   const [profiles, setProfiles] = useState({});
@@ -2197,7 +2291,11 @@ function App() {
   }, [rideRequests, session, pushNotification]);
 
   const handleLogin = (s) => { writeSession(s); setSession(s); };
-  const handleLogout = () => { clearSession(); setSession(null); };
+  const handleLogout = () => {
+    clearSession();
+    setSession(null);
+    goTab("home", { replace: true });
+  };
 
   const doCheckIn = async (lat, lon) => {
     if (!db || !session) return;
@@ -2292,7 +2390,7 @@ function App() {
   const handleOpenMatchChat = (partner) => {
     if (!session || !partner) return;
     setChatFocus(matchThreadId(session.empId, partner.empId));
-    setTab("chat");
+    goTab("chat");
     setHasNewChat(false);
     lastSeenChat.current = Date.now();
   };
@@ -2331,7 +2429,7 @@ function App() {
     }
     await db.doc("rideRequests/" + req.id).update({ status: "accepted", groupId: groupId || null });
     pushNotification(req.fromName + " added to your ride group", { title: "Accepted", icon: "check" });
-    setTab("groups");
+    goTab("groups");
   };
 
   const handleDeclineRequest = async (req) => {
@@ -2375,27 +2473,33 @@ function App() {
     h(NotificationStack, {
       notifications,
       onOpen: (n) => {
-        if (n.kind === "chat") { if (n.threadId) setChatFocus(n.threadId); setTab("chat"); setHasNewChat(false); lastSeenChat.current = Date.now(); }
-        if (n.kind === "request") setTab("home");
+        if (n.kind === "chat") { if (n.threadId) setChatFocus(n.threadId); goTab("chat"); setHasNewChat(false); lastSeenChat.current = Date.now(); }
+        if (n.kind === "request") goTab("home");
         setNotifications(list => list.filter(x => x.id !== n.id));
       },
     }),
     h(TopBar, {
+      tab,
       session,
       photo: profiles[session.empId] && profiles[session.empId].photo,
       onLogout: handleLogout,
       onOpenSafety: () => setShowSafety(true),
+      onHome: () => goTab("home", { replace: true }),
+      onBack: () => {
+        if (window.history.length > 1) history.back();
+        else goTab("home", { replace: true });
+      },
       notifications,
       onOpenNotification: (n) => {
-        if (n.kind === "chat") { if (n.threadId) setChatFocus(n.threadId); setTab("chat"); setHasNewChat(false); lastSeenChat.current = Date.now(); }
-        if (n.kind === "request") setTab("home");
+        if (n.kind === "chat") { if (n.threadId) setChatFocus(n.threadId); goTab("chat"); setHasNewChat(false); lastSeenChat.current = Date.now(); }
+        if (n.kind === "request") goTab("home");
         setNotifications(list => list.filter(x => x.id !== n.id));
       },
     }),
     showSafety && h(SafetyModal, { session, onClose: () => setShowSafety(false) }),
     !dbReady && h("div", { className: "app-shell pt-3 text-xs text-center shrink-0", style: { color: "var(--muted)" } }, "Connecting to live data…"),
     dbReady && !db && h("div", { className: "app-shell pt-3 text-xs text-center shrink-0", style: { color: "var(--danger)" } }, "Cannot reach the backend — start the server (start.bat) and open http://127.0.0.1:5000"),
-    !isChat && h(CheckInBanner, { myPresence, geoStatus, placeLabel, myCoords, busy: checkInBusy, onCheckIn: handleCheckIn, onCheckOut: handleCheckOut, onRefreshLocation: handleRefreshLocation }),
+    !isChat && h("div", { className: "checkin-banner-wrap" }, h(CheckInBanner, { myPresence, geoStatus, placeLabel, myCoords, busy: checkInBusy, onCheckIn: handleCheckIn, onCheckOut: handleCheckOut, onRefreshLocation: handleRefreshLocation })),
     h("div", {
       className: isChat ? "app-shell chat-pane" : "app-shell main-scroll page-pad",
     },
@@ -2413,7 +2517,7 @@ function App() {
       tab === "groups" && h(GroupsTab, { groups, session, myGroup, onCreate: handleCreateGroup, onJoin: handleJoinGroup, onLeave: handleLeaveGroup }),
       tab === "ride" && h(RideTab, { myGroup: rideGroup, session, groups, feedback, onStart: handleStartRide, onComplete: handleCompleteRide, onSubmitFeedback: handleSubmitFeedback, feedbackGiven })
     ),
-    h(BottomNav, { tab, setTab, chatBadge: hasNewChat, requestBadge: pendingRequests > 0 })
+    h(BottomNav, { tab, onTab: goTab, chatBadge: hasNewChat, requestBadge: pendingRequests > 0 })
   );
 }
 
