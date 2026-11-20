@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import threading
 import time
@@ -20,6 +21,7 @@ from flask import Flask, Response, jsonify, request, send_from_directory
 from flask_cors import CORS
 
 ROOT = Path(__file__).resolve().parent.parent
+IS_VERCEL = bool(os.environ.get("VERCEL"))
 
 
 def _resolve_frontend() -> Path:
@@ -589,10 +591,19 @@ def delete_ride_request(req_id: str):
 
 @app.get("/api/events")
 def events():
-    """Server-Sent Events stream — clients get a full snapshot whenever data changes."""
+    """Server-Sent Events stream — clients get a full snapshot whenever data changes.
+
+    On Vercel, emit one snapshot and close. Long-lived streams are a poor fit for
+    serverless; the frontend already polls /api/snapshot as a fallback.
+    """
 
     def stream():
-        last = -1
+        with _lock:
+            last = _version
+            data = snapshot()
+        yield f"data: {json.dumps(data)}\n\n"
+        if IS_VERCEL:
+            return
         while True:
             with _condition:
                 while _version == last:

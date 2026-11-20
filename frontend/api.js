@@ -90,6 +90,8 @@
       es.onerror = () => {
         if (es) es.close();
         es = null;
+        // Serverless hosts close SSE quickly; reconnect later (polling still covers gaps).
+        setTimeout(connectSse, 15000);
       };
     }
 
