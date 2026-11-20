@@ -6,7 +6,14 @@ import traceback
 try:
     from backend.app import app  # noqa: F401
 except Exception:  # pragma: no cover - surfaced on Vercel if import fails
-    from flask import Flask
+    try:
+        from flask import Flask
+    except Exception:
+        # Last resort: no Flask installed — raise so logs show the original error.
+        raise RuntimeError(
+            "Flask failed to import. Check pyproject.toml / requirements.txt dependencies.\n\n"
+            + traceback.format_exc()
+        ) from None
 
     app = Flask(__name__)
     _error = traceback.format_exc()
