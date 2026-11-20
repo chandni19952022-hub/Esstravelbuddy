@@ -232,17 +232,28 @@
     transform: translateY(-1px);
   }
   .bottom-nav {
-    background: rgba(255, 255, 255, 0.92);
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(14px);
     border-top: 1px solid rgba(212, 222, 233, 0.7);
     box-shadow: 0 -10px 30px rgba(20, 49, 77, 0.08);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .main-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .chat-pane {
     flex: 1 1 auto;
     min-height: 0;
     display: flex;
     flex-direction: column;
-    padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+    overflow: hidden;
+    padding-top: 4px;
+    padding-bottom: 0;
   }
   .chat-thread-bar {
     display: flex;
@@ -258,15 +269,36 @@
     gap: 10px;
     align-items: center;
     flex-shrink: 0;
-    padding-top: 10px;
-    padding-bottom: 8px;
-    background: linear-gradient(180deg, rgba(238, 243, 248, 0), #eef3f8 32%);
+    margin: 0 -4px;
+    padding: 10px 4px 12px;
+    background: #eef3f8;
+    border-top: 1px solid rgba(212, 222, 233, 0.85);
+    z-index: 5;
   }
   .chat-composer input {
     flex: 1 1 auto;
     min-width: 0;
     width: 100%;
     font-size: 16px;
+  }
+  .chat-send-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-shrink: 0;
+    min-width: 52px;
+    height: 48px;
+    padding: 0 14px;
+    border: none;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #2A4F7A 0%, #1B3A5F 100%);
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(27, 58, 95, 0.28);
+  }
+  .chat-send-btn:disabled {
+    opacity: 0.45;
+    box-shadow: none;
   }
   .brand-logo {
     height: 34px;
@@ -282,11 +314,24 @@
     gap: 6px;
     flex-wrap: wrap;
   }
-  .page-pad { padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)); }
+  .page-pad { padding-bottom: 24px; }
   @media (max-width: 720px) {
     input, select, textarea { font-size: 16px; }
     .brand-logo { height: 26px; max-width: 42vw; }
     .top-actions { gap: 8px; }
+    .chat-composer { padding: 12px 2px 14px; }
+    .chat-composer input {
+      padding-top: 14px !important;
+      padding-bottom: 14px !important;
+      min-height: 48px;
+    }
+    .chat-send-btn {
+      min-width: 74px;
+      height: 48px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 800;
+    }
     .home-hero {
       flex-wrap: wrap;
       align-items: flex-start;
@@ -840,7 +885,7 @@ function TopBar({ session, photo, onLogout, onOpenSafety, notifications, onOpenN
   const alerts = notifications || [];
   const alertCount = alerts.length;
   return h("div", {
-    className: "sticky top-0 z-20",
+    className: "shrink-0 z-20",
     style: {
       background: "#FFFFFF",
       borderBottom: "1px solid var(--border)",
@@ -1753,25 +1798,22 @@ function ChatTab({ messages, session, myGroup, matchThreads, chatFocus, presence
           onChange: e => setText(e.target.value),
           placeholder: activeMatch ? ("Message " + activeMatch.peerName + "…") : (scope === "mine" ? "Message your group…" : "Select a chat"),
           disabled: !scope,
+          enterKeyHint: "send",
+          autoComplete: "off",
           className: "flex-1 rounded-2xl px-4 py-3.5 text-sm outline-none font-medium",
           style: {
-            border: "1px solid var(--border)",
-            background: "var(--card)",
+            border: "1.5px solid var(--border)",
+            background: "#fff",
             color: "var(--ink)",
             boxShadow: "var(--shadowSoft)",
           },
         }),
         h("button", {
           type: "submit",
-          className: "flex items-center justify-center rounded-2xl shrink-0",
-          style: {
-            width: 50,
-            height: 50,
-            background: "var(--teal)",
-            color: "#fff",
-            boxShadow: "0 8px 18px rgba(27,58,95,0.25)",
-          },
-        }, h(Icon, { name: "send", size: 18, color: "#fff" }))
+          disabled: !scope || !text.trim(),
+          className: "chat-send-btn",
+          "aria-label": "Send message",
+        }, h(Icon, { name: "send", size: 16, color: "#fff" }), h("span", null, "Send"))
       )
     )
   );
@@ -1905,15 +1947,16 @@ function BottomNav({ tab, setTab, chatBadge, requestBadge }) {
     { id: "groups", label: "Groups", icon: "users" },
     { id: "ride", label: "Ride", icon: "car" },
   ];
-  return h("div", {
-    className: "bottom-nav fixed bottom-0 left-0 right-0 z-20",
-    style: { paddingBottom: "env(safe-area-inset-bottom, 0px)" },
+  return h("nav", {
+    className: "bottom-nav z-20",
+    "aria-label": "Main",
   },
     h("div", { className: "app-shell flex" },
       items.map((it, idx) => {
         const active = tab === it.id;
         return h("button", {
           key: it.id,
+          type: "button",
           onClick: () => setTab(it.id),
           className: "nav-item flex-1 flex flex-col items-center gap-1 py-2.5 relative",
           style: { borderLeft: idx === 0 ? "none" : "1px solid #EEF2F7" },
@@ -2325,8 +2368,7 @@ function App() {
       minHeight: "100vh",
       display: "flex",
       flexDirection: "column",
-      overflowX: "hidden",
-      overflowY: isChat ? "hidden" : "auto",
+      overflow: "hidden",
       maxWidth: "100%",
     },
   },
@@ -2355,7 +2397,7 @@ function App() {
     dbReady && !db && h("div", { className: "app-shell pt-3 text-xs text-center shrink-0", style: { color: "var(--danger)" } }, "Cannot reach the backend — start the server (start.bat) and open http://127.0.0.1:5000"),
     !isChat && h(CheckInBanner, { myPresence, geoStatus, placeLabel, myCoords, busy: checkInBusy, onCheckIn: handleCheckIn, onCheckOut: handleCheckOut, onRefreshLocation: handleRefreshLocation }),
     h("div", {
-      className: isChat ? "app-shell chat-pane" : "page-pad",
+      className: isChat ? "app-shell chat-pane" : "app-shell main-scroll page-pad",
     },
       tab === "home" && h(HomeTab, {
         session, presenceList, myCoords, placeLabel, geoStatus, profiles, rideRequests,
@@ -2368,8 +2410,8 @@ function App() {
         pushNotification,
       }),
       tab === "chat" && h(ChatTab, { messages: chat, session, myGroup: chatGroup, matchThreads, chatFocus, presenceMap: presence, myCoords, profiles, onSend: handleSend, onUnmatch: handleUnmatch }),
-      tab === "groups" && h("div", { className: "app-shell" }, h(GroupsTab, { groups, session, myGroup, onCreate: handleCreateGroup, onJoin: handleJoinGroup, onLeave: handleLeaveGroup })),
-      tab === "ride" && h("div", { className: "app-shell" }, h(RideTab, { myGroup: rideGroup, session, groups, feedback, onStart: handleStartRide, onComplete: handleCompleteRide, onSubmitFeedback: handleSubmitFeedback, feedbackGiven }))
+      tab === "groups" && h(GroupsTab, { groups, session, myGroup, onCreate: handleCreateGroup, onJoin: handleJoinGroup, onLeave: handleLeaveGroup }),
+      tab === "ride" && h(RideTab, { myGroup: rideGroup, session, groups, feedback, onStart: handleStartRide, onComplete: handleCompleteRide, onSubmitFeedback: handleSubmitFeedback, feedbackGiven })
     ),
     h(BottomNav, { tab, setTab, chatBadge: hasNewChat, requestBadge: pendingRequests > 0 })
   );
